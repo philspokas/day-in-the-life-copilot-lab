@@ -67,4 +67,3 @@ Typical checkpoint flow:
 [PR] --> checkpoint verify "feature-start"
 ```
 
-> **Note:** This prompt is available in VS Code, Visual Studio, and JetBrains. For Copilot CLI, describe the task directly.

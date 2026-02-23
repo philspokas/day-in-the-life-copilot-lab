@@ -79,4 +79,3 @@ description: Coding patterns extracted from {repo-name}
 - `/instinct-status` - View learned instincts
 - `/evolve` - Cluster instincts into skills/agents
 
-> **Note:** This prompt is available in VS Code, Visual Studio, and JetBrains. For Copilot CLI, describe the task directly.

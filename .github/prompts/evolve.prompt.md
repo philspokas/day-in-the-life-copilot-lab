@@ -76,4 +76,3 @@ Would create: [file path]
 - `--threshold <n>`: Minimum instincts required to form cluster (default: 3)
 - `--type <command|skill|agent>`: Only create specified type
 
-> **Note:** This prompt is available in VS Code, Visual Studio, and JetBrains. For Copilot CLI, describe the task directly.

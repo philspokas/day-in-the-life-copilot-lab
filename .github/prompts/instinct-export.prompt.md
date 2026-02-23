@@ -62,4 +62,3 @@ Exports do NOT include: actual code snippets, file paths, session transcripts, p
 - `--format <yaml|json|md>`: Output format (default: yaml)
 - `--include-evidence`: Include evidence text (default: excluded)
 
-> **Note:** This prompt is available in VS Code, Visual Studio, and JetBrains. For Copilot CLI, describe the task directly.

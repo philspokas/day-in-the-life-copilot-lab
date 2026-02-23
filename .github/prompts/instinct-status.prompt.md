@@ -56,4 +56,3 @@ Total: 9 instincts (4 personal, 5 inherited)
 - `--source <type>`: Filter by source (session-observation, repo-analysis, inherited)
 - `--json`: Output as JSON for programmatic use
 
-> **Note:** This prompt is available in VS Code, Visual Studio, and JetBrains. For Copilot CLI, describe the task directly.

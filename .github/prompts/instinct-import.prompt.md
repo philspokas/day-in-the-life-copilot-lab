@@ -57,4 +57,3 @@ imported_at: "2026-01-30T10:30:00Z"
 - `--from-skill-creator <owner/repo>`: Import from Skill Creator analysis
 - `--min-confidence <n>`: Only import instincts above threshold
 
-> **Note:** This prompt is available in VS Code, Visual Studio, and JetBrains. For Copilot CLI, describe the task directly.

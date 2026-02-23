@@ -69,5 +69,3 @@ REPEAT:   Next feature/scenario
 - Skip running tests after each change
 - Write too much code at once
 - Test implementation details (test behavior)
-
-> **Note:** This prompt is available in VS Code, Visual Studio, and JetBrains. For Copilot CLI, describe the task directly.

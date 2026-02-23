@@ -66,4 +66,3 @@ RECOMMENDATION: [SHIP / NEEDS WORK / BLOCKED]
 
 Show all eval definitions with status.
 
-> **Note:** This prompt is available in VS Code, Visual Studio, and JetBrains. For Copilot CLI, describe the task directly.

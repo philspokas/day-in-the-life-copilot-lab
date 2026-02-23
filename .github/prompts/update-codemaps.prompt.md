@@ -17,7 +17,3 @@ Analyze the codebase structure and update architecture documentation:
 3. Calculate diff percentage from previous version
 4. If changes > 30%, request user approval before updating
 5. Add freshness timestamp to each codemap
-
-Use TypeScript/Node.js for analysis. Focus on high-level structure, not implementation details.
-
-> **Note:** This prompt is available in VS Code, Visual Studio, and JetBrains. For Copilot CLI, describe the task directly.

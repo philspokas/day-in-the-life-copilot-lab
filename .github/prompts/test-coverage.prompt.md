@@ -30,5 +30,3 @@ Focus on:
 - Error handling
 - Edge cases (null, undefined, empty)
 - Boundary conditions
-
-> **Note:** This prompt is available in VS Code, Visual Studio, and JetBrains. For Copilot CLI, describe the task directly.

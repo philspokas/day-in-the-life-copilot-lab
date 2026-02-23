@@ -35,4 +35,3 @@ Sync documentation from source-of-truth:
 
 Single source of truth: package.json and .env.example
 
-> **Note:** This prompt is available in VS Code, Visual Studio, and JetBrains. For Copilot CLI, describe the task directly.
