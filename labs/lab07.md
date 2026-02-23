@@ -25,6 +25,10 @@ You should see:
 - `code-reviewer.agent.md` — reviews code
 - `lab-orchestrator.agent.md` — the orchestrator (we'll create this)
 
+> 💡 `dotnet-qa.agent.md` is created later in section 7.5 as a bonus exercise. The orchestrator will work with just `dotnet-dev` and `code-reviewer` agents.
+
+> This agent ships with the starter repo in `.github/agents/code-reviewer.agent.md`.
+
 2. The orchestration flow is:
 
 ```
@@ -201,6 +205,8 @@ gh copilot
 ```
 @lab-orchestrator Add pagination to the Students/Index page. Support page size of 10 with next/previous navigation.
 ```
+
+> 💡 **What you should see:** The orchestrator analyzes the task, then delegates to @dotnet-dev (you'll see its name appear). After implementation, it delegates to @code-reviewer for feedback. The full cycle may take 1-2 minutes.
 
 > 💡 **Real-world use**: In production, orchestration enables complex workflows — feature development, code review, deployment. Each agent is an expert in its domain, and the orchestrator ensures they work together.
 

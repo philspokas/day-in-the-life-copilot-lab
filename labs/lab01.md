@@ -12,7 +12,9 @@ References:
 
 ## 1.0 Discover Agents from the Marketplace
 
-Before exploring the repo's built-in config, let's see what's available in the **Copilot CLI plugin marketplace** — a registry of community and first-party agents you can install and use immediately.
+The Copilot CLI plugin marketplace is a registry of community and first-party agents you can install directly from your terminal. Plugins extend Copilot with specialized capabilities — think of them as pre-built agents for common development tasks.
+
+### Browse available plugins
 
 🖥️ **In your terminal:**
 
@@ -22,18 +24,45 @@ copilot plugin marketplace list
 
 # Browse available plugins in a marketplace
 copilot plugin marketplace browse awesome-copilot
+```
 
-# Install a plugin (pick one that looks interesting!)
-copilot plugin install PLUGIN-NAME@awesome-copilot
+Browse the available plugins and look for ones related to **.NET**, **testing**, or **database management** — these will be most useful for the ContosoUniversity project we'll work with throughout these labs.
 
-# Or install directly from a GitHub repo
+### Install a plugin
+
+You can install plugins by name from a marketplace or directly from a GitHub repository:
+
+```bash
+# Install from a GitHub repo (most reliable method)
 copilot plugin install OWNER/REPO
 
-# See what you have installed
+# Or install from a marketplace by name
+copilot plugin install PLUGIN-NAME@awesome-copilot
+```
+
+### Verify the installation
+
+```bash
+# Confirm the plugin is installed and ready
 copilot plugin list
 ```
 
-> 💡 **Key insight:** The marketplace gives you pre-built agents for common tasks — database management, testing, documentation, and more. In Lab 03, you'll learn to **create your own** agents. Think of marketplace agents as a starting point you can customize.
+You should see your installed plugin listed with its name, version, and source.
+
+### Use the plugin
+
+Once installed, plugins are available in your Copilot conversations. Invoke them by name:
+
+```bash
+copilot
+
+# Then in the conversation, reference the plugin:
+> @plugin-name help me with my task
+```
+
+> 💡 **Key insight:** Marketplace plugins give you a head start for common workflows — but they're just the beginning. In Lab 03, you'll learn to **create your own agents** tailored to your team's specific needs. Think of marketplace plugins as patterns you can study and customize.
+
+> ⚠️ **Offline or marketplace unavailable?** If you can't access the marketplace, skip ahead to [section 1.1](#11-the-configuration-ecosystem). The rest of this lab works entirely with local configuration files.
 
 References:
 - [Finding and installing plugins](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing)
@@ -47,9 +76,9 @@ This repository ships with a rich set of Copilot configurations. Here's the map 
 
 | Directory | What | Count | Lab |
 |-----------|------|-------|-----|
-| `.github/agents/` | Specialized AI personas (`.agent.md`) | 0 (created in Lab 03) | Lab 03 |
+| `.github/agents/` | Specialized AI personas (`.agent.md`) | 2 (+ more in Lab 03) | Lab 03 |
 | `.github/skills/` | Auto-activating knowledge packs (`SKILL.md`) | 10 | Lab 04 |
-| `.github/prompts/` | Reusable command templates (`.prompt.md`) | 20 | Lab 04 |
+| `.github/prompts/` | Reusable command templates (`.prompt.md`) | 21 | Lab 04 |
 | `.github/instructions/` | Path-specific rules (`.instructions.md`) | 3 | Lab 02 |
 | `.github/copilot-instructions.md` | Repository-wide rules (always loaded) | 1 | Lab 02 |
 | `AGENTS.md` | Project context (always loaded) | 1 | Lab 02 |
@@ -109,7 +138,7 @@ Then try:
 @planner How should I add a student search feature to ContosoUniversity?
 ```
 
-Notice how Copilot references the project's architecture, file structure, and conventions — all loaded from the configuration files we just explored.
+> 💡 Notice how Copilot references the project's architecture, file structure, and conventions — all loaded from the configuration files we just explored. This is semantic search in action.
 
 > 💡 Copilot loads agents from `.github/agents/` in the current working directory. You can also place personal agents in `~/.copilot/agents/`.
 

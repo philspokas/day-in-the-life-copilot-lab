@@ -39,6 +39,8 @@ Copilot should reference your new conventions (async actions, repository pattern
 
 > 💡 **Why this matters:** Every Copilot interaction — chat, completions, agents — now respects these conventions. One file change, universal effect.
 
+> 💡 **Verify:** After modifying instructions, restart your Copilot session (`exit` then `copilot`) to ensure changes are loaded. Ask a test question and check that the response reflects your new rules.
+
 ## 2.2 Create a Path-Specific Instruction
 
 Path-specific instructions apply rules only to certain file types via the `applyTo` glob.
@@ -74,6 +76,8 @@ This instruction only loads when Razor files (`.cshtml`) are in context — not 
 ## 2.3 Edit AGENTS.md
 
 `AGENTS.md` provides project context — architecture, decisions, domain knowledge. Use it for the *what* and *why*; use `copilot-instructions.md` for the *rules*.
+
+> 💡 Open AGENTS.md first (`head -50 AGENTS.md`) to see the current structure before adding your section.
 
 🖥️ **In your terminal:**
 

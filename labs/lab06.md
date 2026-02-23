@@ -118,6 +118,8 @@ HOOK
 chmod +x scripts/hooks/post-tool-use-dotnet-build.sh
 ```
 
+> ⚠️ **Don't skip this step** — without execute permissions, the hook won't run and you'll see no output.
+
 2. Create the PowerShell equivalent:
 ```bash
 cat > scripts/hooks/post-tool-use-dotnet-build.ps1 << 'HOOK'
@@ -182,6 +184,8 @@ bash scripts/hooks/post-tool-use-dotnet-build.sh
 2. You should see `✅ Build succeeded` if the project builds cleanly.
 
 3. In a real Copilot session, this hook fires automatically every time Copilot edits a `.cs` file. If the build breaks, Copilot sees the error output and can fix it.
+
+> 💡 **Expected output:** You should see `✅ Build succeeded` in the Copilot output after editing a .cs file. If you see `⚠️ BUILD FAILED`, check the build errors. If you see nothing, verify permissions: `ls -la scripts/hooks/post-tool-use-dotnet-build.sh`.
 
 ## 6.5 Final
 

@@ -96,6 +96,8 @@ gh pr create \
 
 Or use the GitHub web UI: **Compare & pull request** → set base to `lab/day-in-the-life-copilot-lab` → **Create pull request**.
 
+> 💡 Copilot code review typically takes 2–5 minutes. If no review appears after 5 minutes, click the re-request button next to Copilot's name on the PR page.
+
 ## 9.4 Review the Automated Feedback
 
 If you configured the ruleset in 9.2, Copilot automatically reviews the PR. Otherwise, manually assign **Copilot** as a reviewer on the PR.
@@ -114,6 +116,8 @@ If you configured the ruleset in 9.2, Copilot automatically reviews the PR. Othe
 | 🧪 **Testing** | May note missing unit tests for the new property |
 
 4. Many suggestions include **Apply suggestion** buttons — click to accept fixes directly
+
+> 💡 **What review comments look like:** Copilot posts inline comments on specific changed lines — similar to human reviews. Example: "Consider adding range validation for MaxEnrollment to prevent negative values."
 
 > 💡 **Comment only:** Copilot never approves or requests changes on a PR. It only comments. This keeps humans in control of the merge decision while providing AI-assisted first-pass review.
 

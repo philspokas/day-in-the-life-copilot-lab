@@ -1,17 +1,62 @@
-# 10 — Session Management, Memory & Advanced Features
+# 10 — Reindex, Session Management, Memory & Advanced Features
 
-In this lab you will learn cross-session persistence with the Memory MCP, practice session handoff, and get a tour of advanced Copilot CLI capabilities. This is the capstone — it ties everything together.
+In this lab you will learn how Copilot understands your codebase (reindex), when you still need cross-session persistence (Memory MCP), session handoff techniques, and advanced Copilot CLI capabilities. This is the capstone — it ties everything together.
 
 > ⏱️ Presenter pace: 5 minutes | Self-paced: 15 minutes
 
 References:
+- [Repository indexing](https://docs.github.com/en/copilot/concepts/context/repository-indexing)
 - [Memory MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/memory)
 - [MCP specification](https://spec.modelcontextprotocol.io/)
 - [Copilot CLI docs](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli)
 
-## 10.1 Understand the Memory MCP
+## 10.0 Reindex: How Copilot Understands Your Code
 
-AI coding assistants lose all context when a session ends. The Memory MCP server solves this by providing a **persistent knowledge graph** — a database of entities, observations, and relations that survives across sessions.
+Before we talk about Memory MCP, let's understand what Copilot **already knows** about your codebase — without any extra configuration.
+
+Copilot automatically builds a **semantic index** of your repository. This isn't keyword search — it's a meaning-based understanding of your code's structure, types, relationships, and patterns. This is called **reindex**.
+
+| Feature | Details |
+|---------|---------|
+| **Speed** | Near-instant (seconds, even for large repos) |
+| **How it works** | Builds a semantic index when you open the repo; refreshes as you edit |
+| **What it understands** | Function purpose, type relationships, call hierarchies, patterns |
+| **Available on** | All Copilot tiers — no limits on repos indexed |
+| **Automatic** | No configuration needed — just open the repo |
+
+🖥️ **Try it — ask Copilot questions about your codebase:**
+
+```
+How does the repository pattern work in ContosoUniversity?
+```
+
+```
+What happens when a student enrolls in a course? Trace the flow from controller to database.
+```
+
+```
+Show me all the places where Department is referenced across the solution.
+```
+
+> 💡 **Key insight:** Copilot answers these questions by searching semantically — it understands that "enrolls" relates to the `Enrollment` entity, `EnrollmentsController`, and the repository methods, even though those files don't all contain the word "enroll." This is reindex in action.
+
+### What reindex handles vs. what it doesn't
+
+| Reindex handles automatically ✅ | Still needs Memory MCP ❌ |
+|----------------------------------|--------------------------|
+| Code structure and relationships | Architecture decisions ("we chose X over Y because...") |
+| Type hierarchies and call graphs | Team conventions not in code |
+| File contents and patterns | Insights from previous sessions |
+| Project architecture (from code) | Cross-session continuity |
+| Test patterns and naming | Deployment notes, meeting decisions |
+
+> 💡 **Bottom line:** Reindex replaced the need to manually teach Copilot about your code. Memory MCP is now complementary — use it for **decisions, context, and knowledge that isn't in the code itself.**
+
+---
+
+## 10.1 Memory MCP: Persistent Knowledge Beyond Code
+
+Reindex understands your code automatically, but some knowledge lives **outside the codebase** — architecture decisions, team conventions, insights from debugging sessions, deployment gotchas. The Memory MCP provides a **persistent knowledge graph** for this kind of knowledge.
 
 🖥️ **In your terminal:**
 
@@ -30,6 +75,8 @@ You should see:
 }
 ```
 
+> 💡 **Data model:** Memory MCP stores a knowledge graph. A **node** is an entity (e.g., "ContosoUniversity"). An **observation** is a fact about it. A **relation** links two entities. Think of it as: entities have observations, and relations connect entities.
+
 2. The Memory MCP provides these tools:
 
 | Tool | Purpose |
@@ -46,23 +93,23 @@ You should see:
 
 > 💡 **Knowledge graph model:** Entities are nodes (things), observations are facts about an entity, and relations are edges connecting entities. Think of it like a mini database with flexible schema.
 
-## 10.2 Store Knowledge in Memory MCP
+## 10.2 Store Decisions and Context in Memory MCP
 
-Let's store some knowledge about the ContosoUniversity project that would be useful for a future session.
+Reindex already knows your code structure. Use Memory MCP for knowledge that **isn't in the code** — decisions, conventions, and insights that future sessions need.
 
 🖥️ **In Copilot CLI, ask the agent to store knowledge:**
 
 ```
 Store the following in the Memory MCP knowledge graph:
 
-Entity: ContosoUniversity
-Type: project
+Entity: ContosoUniversity-Decisions
+Type: decisions
 Observations:
-- .NET 8 clean architecture project with Core, Infrastructure, Web, Tests, and PlaywrightTests projects
-- Uses Entity Framework Core with SQL Server for data access
-- Models: Student, Course, Instructor, Enrollment, Department, OfficeAssignment
-- Repository pattern in Infrastructure, DI in Web startup
-- Test naming convention: MethodName_Condition_ExpectedResult
+- Chose repository pattern over direct DbContext access for testability
+- Test naming convention: MethodName_Condition_ExpectedResult (team agreed 2024-Q3)
+- SQL Server for production, SQLite for integration tests via WebApplicationFactory
+- gh-aw PRD workflow triggers on feature/** branches — do NOT use for hotfixes
+- Code review requires approval from @code-reviewer agent before merge
 ```
 
 The agent will call `create_entities` to store this in the knowledge graph.
@@ -84,7 +131,9 @@ Search the Memory MCP for "ContosoUniversity"
 
 The agent calls `search_nodes` and returns the entity with all its observations.
 
-> 💡 **When to store:** Store facts that took effort to discover — architecture patterns, naming conventions, gotchas, key decisions. Don't store things easily found by reading the code.
+> 💡 **Expected response:** Copilot confirms storage with something like "I've stored the ContosoUniversity entity with observations about its architecture." If it says "Memory MCP not available," the server isn't configured in `.copilot/mcp-config.json`.
+
+> 💡 **When to store:** Store decisions, conventions, and gotchas — things that took effort to discover and aren't obvious from reading the code. Reindex already handles code structure, so don't duplicate that.
 
 ## 10.3 Use Knowledge Across Sessions
 
@@ -154,7 +203,7 @@ grep -A 10 '"hooks"' .github/skills/continuous-learning-v2/SKILL.md | head -12
 
 The v2 architecture uses `preToolUse` and `postToolUse` hooks — the same hook types we explored in Lab 06. This means every tool call is observed, and patterns are never missed.
 
-> 💡 **Explicit + Automatic:** Memory MCP is your **explicit** knowledge store — you decide what to remember. Continuous learning is your **automatic** pattern extractor — it learns from what you do. Together, they make your AI assistant progressively smarter across sessions.
+> 💡 **Three layers of knowledge:** Reindex is your **automatic code understanding** — it reads the code. Memory MCP is your **explicit decision store** — you tell it what to remember. Continuous learning is your **automatic pattern extractor** — it learns from what you do. Together, they make your AI assistant progressively smarter.
 
 > 💡 **Ties it all together:** Notice how continuous learning combines skills (Lab 04), hooks (Lab 06), and session persistence (this lab). Each Copilot feature amplifies the others.
 
@@ -197,6 +246,8 @@ cat .github/prompts/checkpoint.prompt.md | head -15
 
 > 💡 **Handoff vs Checkpoint:** Use `/handoff` at the end of a session (comprehensive). Use `/checkpoint` at intermediate milestones (lightweight — just a git stash/commit marker).
 
+> 💡 **When to use each:** Use `/checkpoint` at small milestones (finished a lab, completed initial design). Use `/handoff` when ending a session entirely — it generates a comprehensive context document for your next session.
+
 ## 10.6 Advanced Copilot CLI Features
 
 The features we've covered so far — agents, skills, hooks, MCP, orchestration — are the building blocks. The Copilot CLI has additional advanced capabilities that amplify everything you've learned.
@@ -234,9 +285,9 @@ You configure language servers via `.github/lsp.json` (per-repo) or `~/.copilot/
 
 > 💡 **Why this matters:** When Copilot uses LSP, it doesn't just `grep` your code — it *understands* types, inheritance, call hierarchies, and project structure. This is how it knows that changing a method signature will break 12 other files.
 
-### Semantic Code Search
+### Semantic Code Search (Reindex)
 
-Copilot builds a **meaning-based index** of your codebase — not keyword matching, but intent-based retrieval.
+We covered reindex in section 10.0 — Copilot builds a **meaning-based index** of your codebase automatically. Here's a quick recap of what makes it powerful:
 
 | Feature | Details |
 |---------|---------|
@@ -372,7 +423,8 @@ The workflow in practice:
 
 | Concept | Details |
 |---------|---------|
-| **Memory MCP** | Persistent knowledge graph across sessions |
+| **Reindex** | Automatic semantic understanding of your codebase — no config needed |
+| **Memory MCP** | Persistent knowledge graph for decisions and context beyond code |
 | **Entities** | Nodes with a name, type, and observations |
 | **Relations** | Directed edges between entities |
 | **Observations** | Individual facts attached to an entity |
@@ -419,7 +471,7 @@ Congratulations! You've gone from zero to a full understanding of the GitHub Cop
 - ✅ **Lab 07** — Orchestrated a multi-agent development pipeline
 - ✅ **Lab 08** — Automated PRD generation with GitHub Agentic Workflows
 - ✅ **Lab 09** — Used Copilot Code Review for AI-powered pull request reviews
-- ✅ **Lab 10** — Used Memory MCP, explored LSP, semantic search, sub-agents, and fleet mode
+- ✅ **Lab 10** — Explored reindex, used Memory MCP for decisions, practiced handoffs, and toured advanced features
 
 ### The Big Picture
 

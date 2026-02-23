@@ -78,6 +78,8 @@ Use Context7 to find Entity Framework Core migration best practices.
 
 > 💡 Context7 is especially useful for staying current with library documentation — it fetches real-time docs rather than relying on training data.
 
+> 💡 **What you should see:** Copilot responds with up-to-date documentation from the library. If it says "Context7 not available" or ignores the tool, the MCP server may not have started — check that `npx` is available and Node.js is installed.
+
 ## 5.3 Use Memory MCP for Persistence
 
 The Memory MCP provides a knowledge graph that persists across sessions. Entities, observations, and relations survive between conversations.
@@ -151,6 +153,8 @@ Fetch the README from https://raw.githubusercontent.com/dotnet/aspnetcore/main/R
 ```
 
 > ⚠️ **Security note**: Be careful with MCP servers that have broad access. The `tools: ["*"]` setting exposes all tools. In production, restrict to only the tools you need.
+
+> 💡 **Verify the server loaded:** After restarting your Copilot session, test with a query the new server should handle. If it responds with relevant data, the server is working.
 
 ## 5.5 Final
 

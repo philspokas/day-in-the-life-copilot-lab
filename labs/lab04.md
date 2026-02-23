@@ -214,12 +214,16 @@ How should I write unit tests for the StudentsController in ContosoUniversity?
    - Moq for mocking `IRepository<Student>`
    - Arrange-Act-Assert pattern
 
+> 💡 **What you should see:** The response should reference patterns from your skill — look for mentions of `MethodName_Condition_ExpectedResult()` naming, Moq for mocking, or WebApplicationFactory. If none appear, the skill may not have auto-activated — try mentioning "testing" or "xUnit" explicitly.
+
 4. Now try the prompt:
 ```
 /create-dotnet-test for ContosoUniversity.Web/Controllers/CoursesController.cs
 ```
 
 The prompt should generate a complete test class for the CoursesController.
+
+> 💡 **Expected output:** A complete xUnit test class with `[Fact]` methods following the naming convention. The file won't be created until you explicitly ask Copilot to save it.
 
 > 💡 **Skills vs Prompts**: Skills activate automatically based on topic. Prompts are invoked explicitly with `/name`. Use skills for knowledge (patterns, conventions) and prompts for actions (generate code, run workflows).
 

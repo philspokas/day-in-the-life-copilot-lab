@@ -16,7 +16,7 @@ Before creating your own agent, let's understand what makes up an agent file.
 
 1. Look at an existing agent to understand the structure:
 ```bash
-head -30 .github/agents/typescript-dev.agent.md
+head -30 .github/agents/planner.agent.md
 ```
 
 2. An agent file has two parts:
@@ -114,6 +114,8 @@ head -5 .github/agents/dotnet-dev.agent.md
 
 You should see the YAML frontmatter with `name: "dotnet-dev"`.
 
+> 💡 **Verify the agent loads:** Start a new Copilot session and try `@dotnet-dev What files are in this project?`. If the agent responds, it's working. If you get "unknown agent", check the file is saved in `.github/agents/`.
+
 ## 3.3 Configure Tools and MCP Servers
 
 The agent we created uses basic tools. Let's understand how to add MCP server access.
@@ -200,5 +202,7 @@ After this lab you should understand:
 See [`solutions/lab03-dotnet-dev-agent/dotnet-dev.agent.md`](../solutions/lab03-dotnet-dev-agent/dotnet-dev.agent.md) for the complete reference implementation.
 
 </details>
+
+> This agent is now available for orchestration in Lab 07, where you'll coordinate multiple agents working together.
 
 **Next:** [Lab 04 — Skills & Prompts](lab04.md)

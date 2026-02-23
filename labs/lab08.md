@@ -66,6 +66,8 @@ cat .github/workflows/generate-prd.md
 | `strict` | `false` | Agent can perform any output action |
 | `description` | (text) | Shown in the GitHub Actions UI |
 
+> 💡 The workflow triggers on `feature/**` and `story/**` branch patterns. Only branches matching these patterns will generate a PRD — other branch names like `bugfix/` won't trigger it.
+
 3. Now read the Markdown body — the agent instructions:
 ```bash
 # Show only the Markdown body (after the second ---)
@@ -176,6 +178,8 @@ After the workflow completes:
    - Referenced specific models (Course, Student, Enrollment)
    - Identified affected projects (Core for entities, Infrastructure for EF migrations)
    - Suggested appropriate testing patterns
+
+> 💡 **Expected content:** A structured PRD with sections for Feature Overview, User Stories, Acceptance Criteria, Technical Considerations, and Dependencies. If the PRD is empty or generic, the workflow may have timed out.
 
 > 💡 **Real-world use:** In production, this workflow replaces the manual PRD writing step. Teams create a branch, and the AI agent generates a first-draft PRD that the PM reviews and refines.
 
