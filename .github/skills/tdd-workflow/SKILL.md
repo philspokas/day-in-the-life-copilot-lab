@@ -12,8 +12,8 @@ This skill ensures all code development follows TDD principles with comprehensiv
 - Writing new features or functionality
 - Fixing bugs or issues
 - Refactoring existing code
-- Adding API endpoints
-- Creating new components
+- Adding controller actions or service methods
+- Creating new domain entities or repositories
 
 ## Core Principles
 
@@ -28,17 +28,17 @@ ALWAYS write tests first, then implement code to make tests pass.
 
 ### 3. Test Types
 
-#### Unit Tests
-- Individual functions and utilities
-- Component logic
-- Pure functions
+#### Unit Tests (xUnit)
+- Individual service methods
+- Domain entity logic
+- Repository operations (with in-memory DB)
 - Helpers and utilities
 
-#### Integration Tests
-- API endpoints
-- Database operations
+#### Integration Tests (WebApplicationFactory)
+- Controller endpoints
+- Database operations with EF Core
 - Service interactions
-- External API calls
+- Middleware behavior
 
 #### E2E Tests (Playwright)
 - Critical user flows
@@ -53,52 +53,50 @@ ALWAYS write tests first, then implement code to make tests pass.
 As a [role], I want to [action], so that [benefit]
 
 Example:
-As a user, I want to search for markets semantically,
-so that I can find relevant markets even without exact keywords.
+As an administrator, I want to create a new course with credits,
+so that students can enroll in it next semester.
 ```
 
 ### Step 2: Generate Test Cases
 For each user journey, create comprehensive test cases:
 
-```typescript
-describe('Semantic Search', () => {
-  it('returns relevant markets for query', async () => {
-    // Test implementation
-  })
+```csharp
+public class CourseServiceTests
+{
+    [Fact]
+    public async Task CreateCourse_ValidData_ReturnsCourse() { }
 
-  it('handles empty query gracefully', async () => {
-    // Test edge case
-  })
+    [Fact]
+    public async Task CreateCourse_DuplicateTitle_ThrowsException() { }
 
-  it('falls back to substring search when Redis unavailable', async () => {
-    // Test fallback behavior
-  })
+    [Fact]
+    public async Task CreateCourse_InvalidCredits_ThrowsValidationException() { }
 
-  it('sorts results by similarity score', async () => {
-    // Test sorting logic
-  })
-})
+    [Fact]
+    public async Task CreateCourse_NonExistentDepartment_ThrowsNotFoundException() { }
+}
 ```
 
 ### Step 3: Run Tests (They Should Fail)
 ```bash
-npm test
+dotnet test
 # Tests should fail - we haven't implemented yet
 ```
 
 ### Step 4: Implement Code
 Write minimal code to make tests pass:
 
-```typescript
+```csharp
 // Implementation guided by tests
-export async function searchMarkets(query: string) {
-  // Implementation here
+public async Task<Course> CreateCourseAsync(CreateCourseDto dto)
+{
+    // Minimal implementation to pass tests
 }
 ```
 
 ### Step 5: Run Tests Again
 ```bash
-npm test
+dotnet test
 # Tests should now pass
 ```
 
@@ -111,289 +109,322 @@ Improve code quality while keeping tests green:
 
 ### Step 7: Verify Coverage
 ```bash
-npm run test:coverage
+dotnet test --collect:"XPlat Code Coverage"
 # Verify 80%+ coverage achieved
 ```
 
 ## Testing Patterns
 
-### Unit Test Pattern (Jest/Vitest)
-```typescript
-import { render, screen, fireEvent } from '@testing-library/react'
-import { Button } from './Button'
+### Unit Test Pattern (xUnit + Moq)
+```csharp
+using Moq;
+using Xunit;
 
-describe('Button Component', () => {
-  it('renders with correct text', () => {
-    render(<Button>Click me</Button>)
-    expect(screen.getByText('Click me')).toBeInTheDocument()
-  })
+public class StudentServiceTests
+{
+    private readonly Mock<IStudentRepository> _mockRepository;
+    private readonly StudentService _service;
 
-  it('calls onClick when clicked', () => {
-    const handleClick = jest.fn()
-    render(<Button onClick={handleClick}>Click</Button>)
+    public StudentServiceTests()
+    {
+        _mockRepository = new Mock<IStudentRepository>();
+        _service = new StudentService(_mockRepository.Object);
+    }
 
-    fireEvent.click(screen.getByRole('button'))
+    [Fact]
+    public async Task GetById_ExistingId_ReturnsStudent()
+    {
+        // Arrange
+        var expected = new Student { Id = 1, LastName = "Smith", FirstMidName = "John" };
+        _mockRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(expected);
 
-    expect(handleClick).toHaveBeenCalledTimes(1)
-  })
+        // Act
+        var result = await _service.GetByIdAsync(1);
 
-  it('is disabled when disabled prop is true', () => {
-    render(<Button disabled>Click</Button>)
-    expect(screen.getByRole('button')).toBeDisabled()
-  })
-})
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("Smith", result.LastName);
+    }
+
+    [Fact]
+    public async Task GetById_NonExistentId_ReturnsNull()
+    {
+        // Arrange
+        _mockRepository.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((Student?)null);
+
+        // Act
+        var result = await _service.GetByIdAsync(999);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task Create_DuplicateEmail_ThrowsException()
+    {
+        // Arrange
+        var dto = new CreateStudentDto { LastName = "Smith", FirstMidName = "John" };
+        _mockRepository.Setup(r => r.ExistsAsync(It.IsAny<string>())).ReturnsAsync(true);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<DuplicateEntityException>(
+            () => _service.CreateAsync(dto));
+    }
+}
 ```
 
-### API Integration Test Pattern
-```typescript
-import { NextRequest } from 'next/server'
-import { GET } from './route'
+### Integration Test Pattern (WebApplicationFactory)
+```csharp
+using Microsoft.AspNetCore.Mvc.Testing;
+using System.Net;
+using Xunit;
 
-describe('GET /api/markets', () => {
-  it('returns markets successfully', async () => {
-    const request = new NextRequest('http://localhost/api/markets')
-    const response = await GET(request)
-    const data = await response.json()
+public class StudentsControllerTests : IClassFixture<WebApplicationFactory<Program>>
+{
+    private readonly HttpClient _client;
 
-    expect(response.status).toBe(200)
-    expect(data.success).toBe(true)
-    expect(Array.isArray(data.data)).toBe(true)
-  })
+    public StudentsControllerTests(WebApplicationFactory<Program> factory)
+    {
+        _client = factory.CreateClient();
+    }
 
-  it('validates query parameters', async () => {
-    const request = new NextRequest('http://localhost/api/markets?limit=invalid')
-    const response = await GET(request)
+    [Fact]
+    public async Task GetStudents_ReturnsSuccessStatusCode()
+    {
+        // Act
+        var response = await _client.GetAsync("/Students");
 
-    expect(response.status).toBe(400)
-  })
+        // Assert
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("text/html; charset=utf-8",
+            response.Content.Headers.ContentType?.ToString());
+    }
 
-  it('handles database errors gracefully', async () => {
-    // Mock database failure
-    const request = new NextRequest('http://localhost/api/markets')
-    // Test error handling
-  })
-})
+    [Fact]
+    public async Task GetStudent_InvalidId_ReturnsNotFound()
+    {
+        // Act
+        var response = await _client.GetAsync("/Students/Details/99999");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+}
 ```
 
 ### E2E Test Pattern (Playwright)
-```typescript
-import { test, expect } from '@playwright/test'
+```csharp
+using Microsoft.Playwright;
+using Xunit;
 
-test('user can search and filter markets', async ({ page }) => {
-  // Navigate to markets page
-  await page.goto('/')
-  await page.click('a[href="/markets"]')
+public class StudentE2ETests : IAsyncLifetime
+{
+    private IPlaywright _playwright = null!;
+    private IBrowser _browser = null!;
+    private IPage _page = null!;
 
-  // Verify page loaded
-  await expect(page.locator('h1')).toContainText('Markets')
+    public async Task InitializeAsync()
+    {
+        _playwright = await Playwright.CreateAsync();
+        _browser = await _playwright.Chromium.LaunchAsync();
+        _page = await _browser.NewPageAsync();
+    }
 
-  // Search for markets
-  await page.fill('input[placeholder="Search markets"]', 'election')
+    [Fact]
+    public async Task User_CanViewStudentList()
+    {
+        // Navigate to students page
+        await _page.GotoAsync("https://localhost:5001/Students");
 
-  // Wait for debounce and results
-  await page.waitForTimeout(600)
+        // Verify page loaded
+        await Expect(_page.Locator("h2")).ToContainTextAsync("Students");
 
-  // Verify search results displayed
-  const results = page.locator('[data-testid="market-card"]')
-  await expect(results).toHaveCount(5, { timeout: 5000 })
+        // Verify student table is displayed
+        var rows = _page.Locator("table tbody tr");
+        var count = await rows.CountAsync();
+        Assert.True(count > 0, "Student table should contain rows");
+    }
 
-  // Verify results contain search term
-  const firstResult = results.first()
-  await expect(firstResult).toContainText('election', { ignoreCase: true })
+    [Fact]
+    public async Task User_CanCreateNewStudent()
+    {
+        await _page.GotoAsync("https://localhost:5001/Students/Create");
 
-  // Filter by status
-  await page.click('button:has-text("Active")')
+        // Fill the form
+        await _page.FillAsync("#LastName", "TestStudent");
+        await _page.FillAsync("#FirstMidName", "Integration");
+        await _page.FillAsync("#EnrollmentDate", "2024-09-01");
 
-  // Verify filtered results
-  await expect(results).toHaveCount(3)
-})
+        // Submit
+        await _page.ClickAsync("input[type='submit']");
 
-test('user can create a new market', async ({ page }) => {
-  // Login first
-  await page.goto('/creator-dashboard')
+        // Verify redirect to index
+        await Expect(_page).ToHaveURLAsync(new Regex("/Students$"));
+    }
 
-  // Fill market creation form
-  await page.fill('input[name="name"]', 'Test Market')
-  await page.fill('textarea[name="description"]', 'Test description')
-  await page.fill('input[name="endDate"]', '2025-12-31')
-
-  // Submit form
-  await page.click('button[type="submit"]')
-
-  // Verify success message
-  await expect(page.locator('text=Market created successfully')).toBeVisible()
-
-  // Verify redirect to market page
-  await expect(page).toHaveURL(/\/markets\/test-market/)
-})
+    public async Task DisposeAsync()
+    {
+        await _browser.DisposeAsync();
+        _playwright.Dispose();
+    }
+}
 ```
 
 ## Test File Organization
 
 ```
-src/
-├── components/
-│   ├── Button/
-│   │   ├── Button.tsx
-│   │   ├── Button.test.tsx          # Unit tests
-│   │   └── Button.stories.tsx       # Storybook
-│   └── MarketCard/
-│       ├── MarketCard.tsx
-│       └── MarketCard.test.tsx
-├── app/
-│   └── api/
-│       └── markets/
-│           ├── route.ts
-│           └── route.test.ts         # Integration tests
-└── e2e/
-    ├── markets.spec.ts               # E2E tests
-    ├── trading.spec.ts
-    └── auth.spec.ts
+ContosoUniversity.Tests/
+├── Unit/
+│   ├── Services/
+│   │   ├── StudentServiceTests.cs
+│   │   └── CourseServiceTests.cs
+│   ├── Entities/
+│   │   ├── StudentTests.cs
+│   │   └── EnrollmentTests.cs
+│   └── Helpers/
+│       └── PaginatedListTests.cs
+├── Integration/
+│   ├── Controllers/
+│   │   ├── StudentsControllerTests.cs
+│   │   └── CoursesControllerTests.cs
+│   └── Data/
+│       └── StudentRepositoryTests.cs
+└── Fixtures/
+    ├── TestDatabaseFixture.cs
+    └── TestDataBuilder.cs
+
+ContosoUniversity.PlaywrightTests/
+├── StudentE2ETests.cs
+├── CourseE2ETests.cs
+└── NavigationE2ETests.cs
 ```
 
-## Mocking External Services
+## Mocking with Moq
 
-### Supabase Mock
-```typescript
-jest.mock('@/lib/supabase', () => ({
-  supabase: {
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => Promise.resolve({
-          data: [{ id: 1, name: 'Test Market' }],
-          error: null
-        }))
-      }))
-    }))
-  }
-}))
+### Repository Mock
+```csharp
+var mockRepo = new Mock<IStudentRepository>();
+mockRepo.Setup(r => r.GetAllAsync())
+    .ReturnsAsync(new List<Student>
+    {
+        new() { Id = 1, LastName = "Smith", FirstMidName = "John" },
+        new() { Id = 2, LastName = "Doe", FirstMidName = "Jane" }
+    });
 ```
 
-### Redis Mock
-```typescript
-jest.mock('@/lib/redis', () => ({
-  searchMarketsByVector: jest.fn(() => Promise.resolve([
-    { slug: 'test-market', similarity_score: 0.95 }
-  ])),
-  checkRedisHealth: jest.fn(() => Promise.resolve({ connected: true }))
-}))
+### DbContext with In-Memory Database
+```csharp
+private static SchoolContext CreateInMemoryContext()
+{
+    var options = new DbContextOptionsBuilder<SchoolContext>()
+        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+        .Options;
+
+    var context = new SchoolContext(options);
+    context.Database.EnsureCreated();
+    return context;
+}
 ```
 
-### OpenAI Mock
-```typescript
-jest.mock('@/lib/openai', () => ({
-  generateEmbedding: jest.fn(() => Promise.resolve(
-    new Array(1536).fill(0.1) // Mock 1536-dim embedding
-  ))
-}))
+### Logger Mock
+```csharp
+var mockLogger = new Mock<ILogger<StudentService>>();
+// Verify logging occurred
+mockLogger.Verify(
+    x => x.Log(
+        LogLevel.Error,
+        It.IsAny<EventId>(),
+        It.IsAny<It.IsAnyType>(),
+        It.IsAny<Exception>(),
+        It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+    Times.Once);
 ```
 
 ## Test Coverage Verification
 
 ### Run Coverage Report
 ```bash
-npm run test:coverage
-```
-
-### Coverage Thresholds
-```json
-{
-  "jest": {
-    "coverageThresholds": {
-      "global": {
-        "branches": 80,
-        "functions": 80,
-        "lines": 80,
-        "statements": 80
-      }
-    }
-  }
-}
+dotnet test --collect:"XPlat Code Coverage"
+# or with ReportGenerator
+dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coverage-report
 ```
 
 ## Common Testing Mistakes to Avoid
 
 ### ❌ WRONG: Testing Implementation Details
-```typescript
-// Don't test internal state
-expect(component.state.count).toBe(5)
+```csharp
+// Don't test private methods or internal state
+Assert.Equal(5, service._internalCounter);
 ```
 
-### ✅ CORRECT: Test User-Visible Behavior
-```typescript
-// Test what users see
-expect(screen.getByText('Count: 5')).toBeInTheDocument()
+### ✅ CORRECT: Test Observable Behavior
+```csharp
+// Test the public contract
+var result = await service.GetStudentsAsync();
+Assert.Equal(5, result.Count);
 ```
 
-### ❌ WRONG: Brittle Selectors
-```typescript
+### ❌ WRONG: Brittle Selectors in E2E
+```csharp
 // Breaks easily
-await page.click('.css-class-xyz')
+await page.ClickAsync(".css-class-xyz");
 ```
 
 ### ✅ CORRECT: Semantic Selectors
-```typescript
+```csharp
 // Resilient to changes
-await page.click('button:has-text("Submit")')
-await page.click('[data-testid="submit-button"]')
+await page.ClickAsync("text=Submit");
+await page.ClickAsync("[data-testid='submit-button']");
 ```
 
 ### ❌ WRONG: No Test Isolation
-```typescript
-// Tests depend on each other
-test('creates user', () => { /* ... */ })
-test('updates same user', () => { /* depends on previous test */ })
+```csharp
+// Tests share state — order-dependent
+[Fact] public async Task CreatesStudent() { /* inserts into shared DB */ }
+[Fact] public async Task UpdatesSameStudent() { /* depends on previous test */ }
 ```
 
 ### ✅ CORRECT: Independent Tests
-```typescript
-// Each test sets up its own data
-test('creates user', () => {
-  const user = createTestUser()
-  // Test logic
-})
-
-test('updates user', () => {
-  const user = createTestUser()
-  // Update logic
-})
+```csharp
+// Each test creates its own data
+[Fact]
+public async Task CreatesStudent()
+{
+    using var context = CreateInMemoryContext();
+    // Test logic with isolated DB
+}
 ```
 
 ## Continuous Testing
 
 ### Watch Mode During Development
 ```bash
-npm test -- --watch
+dotnet watch test --project ContosoUniversity.Tests
 # Tests run automatically on file changes
-```
-
-### Pre-Commit Hook
-```bash
-# Runs before every commit
-npm test && npm run lint
 ```
 
 ### CI/CD Integration
 ```yaml
 # GitHub Actions
 - name: Run Tests
-  run: npm test -- --coverage
+  run: dotnet test --collect:"XPlat Code Coverage" --logger "trx"
 - name: Upload Coverage
   uses: codecov/codecov-action@v3
 ```
 
 ## Best Practices
 
-1. **Write Tests First** - Always TDD
-2. **One Assert Per Test** - Focus on single behavior
-3. **Descriptive Test Names** - Explain what's tested
-4. **Arrange-Act-Assert** - Clear test structure
-5. **Mock External Dependencies** - Isolate unit tests
-6. **Test Edge Cases** - Null, undefined, empty, large
-7. **Test Error Paths** - Not just happy paths
-8. **Keep Tests Fast** - Unit tests < 50ms each
-9. **Clean Up After Tests** - No side effects
-10. **Review Coverage Reports** - Identify gaps
+1. **Write Tests First** — Always TDD
+2. **One Assert Per Test** — Focus on single behavior
+3. **MethodName_Condition_ExpectedResult** — Clear naming convention
+4. **Arrange-Act-Assert** — Clear test structure
+5. **Mock External Dependencies** — Use Moq for isolation
+6. **Test Edge Cases** — Null, empty, boundary values
+7. **Test Error Paths** — Not just happy paths
+8. **Keep Tests Fast** — Unit tests < 50ms each
+9. **Clean Up After Tests** — Use `IDisposable` / `IAsyncLifetime`
+10. **Review Coverage Reports** — Identify gaps
 
 ## Success Metrics
 

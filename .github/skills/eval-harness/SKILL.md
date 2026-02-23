@@ -47,13 +47,13 @@ Result: X/Y passed (previously Y/Y)
 Deterministic checks using code:
 ```bash
 # Check if file contains expected pattern
-grep -q "export function handleAuth" src/auth.ts && echo "PASS" || echo "FAIL"
+grep -q "public class StudentService" ContosoUniversity.Core/Services/StudentService.cs && echo "PASS" || echo "FAIL"
 
 # Check if tests pass
-npm test -- --testPathPattern="auth" && echo "PASS" || echo "FAIL"
+dotnet test --filter "FullyQualifiedName~Auth" && echo "PASS" || echo "FAIL"
 
 # Check if build succeeds
-npm run build && echo "PASS" || echo "FAIL"
+dotnet build ContosoUniversity.sln && echo "PASS" || echo "FAIL"
 ```
 
 ### 2. Model-Based Grader
@@ -123,7 +123,7 @@ Write code to pass the defined evals.
 [Run each capability eval, record PASS/FAIL]
 
 # Run regression evals
-npm test -- --testPathPattern="existing"
+dotnet test --filter "FullyQualifiedName~Existing"
 
 # Generate report
 ```

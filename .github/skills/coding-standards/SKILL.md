@@ -1,17 +1,17 @@
 ---
 name: coding-standards
-description: Universal coding standards, best practices, and patterns for TypeScript, JavaScript, React, and Node.js development.
+description: Universal coding standards, best practices, and patterns for C#, ASP.NET Core, and Entity Framework Core development.
 ---
 
 # Coding Standards & Best Practices
 
-Universal coding standards applicable across all projects.
+Universal coding standards applicable across all projects in this .NET solution.
 
 ## Code Quality Principles
 
 ### 1. Readability First
 - Code is read more than written
-- Clear variable and function names
+- Clear variable and method names
 - Self-documenting code preferred over comments
 - Consistent formatting
 
@@ -22,9 +22,9 @@ Universal coding standards applicable across all projects.
 - Easy to understand > clever code
 
 ### 3. DRY (Don't Repeat Yourself)
-- Extract common logic into functions
-- Create reusable components
-- Share utilities across modules
+- Extract common logic into methods and services
+- Create reusable abstractions
+- Share utilities across layers
 - Avoid copy-paste programming
 
 ### 4. YAGNI (You Aren't Gonna Need It)
@@ -33,488 +33,427 @@ Universal coding standards applicable across all projects.
 - Add complexity only when required
 - Start simple, refactor when needed
 
-## TypeScript/JavaScript Standards
+## C# Standards
 
-### Variable Naming
+### Naming Conventions
 
-```typescript
-// ✅ GOOD: Descriptive names
-const marketSearchQuery = 'election'
-const isUserAuthenticated = true
-const totalRevenue = 1000
+```csharp
+// ✅ GOOD: Descriptive names following .NET conventions
+public string LastName { get; set; }
+private readonly IStudentRepository _studentRepository;
+const int MaxEnrollmentsPerStudent = 8;
 
-// ❌ BAD: Unclear names
-const q = 'election'
-const flag = true
-const x = 1000
+// ❌ BAD: Unclear or non-standard names
+public string ln { get; set; }
+private readonly IStudentRepository repo;
+const int x = 8;
 ```
 
-### Function Naming
+### Method Naming
 
-```typescript
-// ✅ GOOD: Verb-noun pattern
-async function fetchMarketData(marketId: string) { }
-function calculateSimilarity(a: number[], b: number[]) { }
-function isValidEmail(email: string): boolean { }
+```csharp
+// ✅ GOOD: Verb-noun pattern, PascalCase
+public async Task<Student> GetStudentByIdAsync(int id) { }
+public bool IsValidEnrollmentDate(DateTime date) { }
+public IEnumerable<Course> FilterByDepartment(int departmentId) { }
 
 // ❌ BAD: Unclear or noun-only
-async function market(id: string) { }
-function similarity(a, b) { }
-function email(e) { }
+public async Task<Student> Student(int id) { }
+public bool Date(DateTime d) { }
 ```
 
 ### Immutability Pattern (CRITICAL)
 
-```typescript
-// ✅ ALWAYS use spread operator
-const updatedUser = {
-  ...user,
-  name: 'New Name'
+```csharp
+// ✅ GOOD: Use records for immutable DTOs
+public record StudentDto(string LastName, string FirstMidName, DateTime EnrollmentDate);
+
+// ✅ GOOD: Use init-only setters
+public class CreateStudentCommand
+{
+    public string LastName { get; init; } = default!;
+    public string FirstMidName { get; init; } = default!;
+    public DateTime EnrollmentDate { get; init; }
 }
 
-const updatedArray = [...items, newItem]
-
-// ❌ NEVER mutate directly
-user.name = 'New Name'  // BAD
-items.push(newItem)     // BAD
+// ❌ BAD: Mutable DTOs with public setters
+public class StudentDto
+{
+    public string LastName { get; set; }  // MUTATION
+}
 ```
 
 ### Error Handling
 
-```typescript
-// ✅ GOOD: Comprehensive error handling
-async function fetchData(url: string) {
-  try {
-    const response = await fetch(url)
+```csharp
+// ✅ GOOD: Comprehensive error handling with context
+public async Task<Student> GetStudentByIdAsync(int id)
+{
+    try
+    {
+        var student = await _context.Students
+            .Include(s => s.Enrollments)
+            .FirstOrDefaultAsync(s => s.Id == id);
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        if (student is null)
+        {
+            throw new NotFoundException($"Student with ID {id} was not found.");
+        }
+
+        return student;
     }
-
-    return await response.json()
-  } catch (error) {
-    console.error('Fetch failed:', error)
-    throw new Error('Failed to fetch data')
-  }
+    catch (Exception ex) when (ex is not NotFoundException)
+    {
+        _logger.LogError(ex, "Failed to retrieve student {StudentId}", id);
+        throw new DataAccessException("Unable to retrieve student.", ex);
+    }
 }
 
 // ❌ BAD: No error handling
-async function fetchData(url) {
-  const response = await fetch(url)
-  return response.json()
+public async Task<Student> GetStudentByIdAsync(int id)
+{
+    return await _context.Students.FindAsync(id);
 }
 ```
 
 ### Async/Await Best Practices
 
-```typescript
+```csharp
 // ✅ GOOD: Parallel execution when possible
-const [users, markets, stats] = await Promise.all([
-  fetchUsers(),
-  fetchMarkets(),
-  fetchStats()
-])
+var studentsTask = _studentRepository.GetAllAsync();
+var coursesTask = _courseRepository.GetAllAsync();
+var departmentsTask = _departmentRepository.GetAllAsync();
+
+await Task.WhenAll(studentsTask, coursesTask, departmentsTask);
+
+var students = await studentsTask;
+var courses = await coursesTask;
+var departments = await departmentsTask;
 
 // ❌ BAD: Sequential when unnecessary
-const users = await fetchUsers()
-const markets = await fetchMarkets()
-const stats = await fetchStats()
+var students = await _studentRepository.GetAllAsync();
+var courses = await _courseRepository.GetAllAsync();
+var departments = await _departmentRepository.GetAllAsync();
 ```
 
 ### Type Safety
 
-```typescript
-// ✅ GOOD: Proper types
-interface Market {
-  id: string
-  name: string
-  status: 'active' | 'resolved' | 'closed'
-  created_at: Date
+```csharp
+// ✅ GOOD: Strong typing with enums and value objects
+public enum Grade { A, B, C, D, F }
+
+public class Enrollment
+{
+    public int StudentId { get; init; }
+    public int CourseId { get; init; }
+    public Grade? Grade { get; set; }
 }
 
-function getMarket(id: string): Promise<Market> {
-  // Implementation
-}
-
-// ❌ BAD: Using 'any'
-function getMarket(id: any): Promise<any> {
-  // Implementation
-}
-```
-
-## React Best Practices
-
-### Component Structure
-
-```typescript
-// ✅ GOOD: Functional component with types
-interface ButtonProps {
-  children: React.ReactNode
-  onClick: () => void
-  disabled?: boolean
-  variant?: 'primary' | 'secondary'
-}
-
-export function Button({
-  children,
-  onClick,
-  disabled = false,
-  variant = 'primary'
-}: ButtonProps) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`btn btn-${variant}`}
-    >
-      {children}
-    </button>
-  )
-}
-
-// ❌ BAD: No types, unclear structure
-export function Button(props) {
-  return <button onClick={props.onClick}>{props.children}</button>
+// ❌ BAD: Stringly typed or object
+public class Enrollment
+{
+    public object Grade { get; set; }  // No type safety
 }
 ```
 
-### Custom Hooks
+## ASP.NET Core Best Practices
 
-```typescript
-// ✅ GOOD: Reusable custom hook
-export function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+### Controller Structure
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value)
-    }, delay)
+```csharp
+// ✅ GOOD: Thin controller, logic in services
+[ApiController]
+[Route("api/[controller]")]
+public class StudentsController : ControllerBase
+{
+    private readonly IStudentService _studentService;
 
-    return () => clearTimeout(handler)
-  }, [value, delay])
+    public StudentsController(IStudentService studentService)
+    {
+        _studentService = studentService;
+    }
 
-  return debouncedValue
+    [HttpGet("{id}")]
+    public async Task<ActionResult<StudentDto>> GetById(int id)
+    {
+        var student = await _studentService.GetByIdAsync(id);
+        if (student is null) return NotFound();
+        return Ok(student);
+    }
 }
 
-// Usage
-const debouncedQuery = useDebounce(searchQuery, 500)
+// ❌ BAD: Fat controller with business logic inline
+[HttpGet("{id}")]
+public async Task<ActionResult> GetById(int id)
+{
+    var student = await _context.Students.FindAsync(id);
+    // 50 lines of business logic here...
+}
 ```
 
-### State Management
+### Dependency Injection
 
-```typescript
-// ✅ GOOD: Proper state updates
-const [count, setCount] = useState(0)
+```csharp
+// ✅ GOOD: Constructor injection with interfaces
+public class StudentService : IStudentService
+{
+    private readonly IStudentRepository _repository;
+    private readonly ILogger<StudentService> _logger;
 
-// Functional update for state based on previous state
-setCount(prev => prev + 1)
-
-// ❌ BAD: Direct state reference
-setCount(count + 1)  // Can be stale in async scenarios
-```
-
-### Conditional Rendering
-
-```typescript
-// ✅ GOOD: Clear conditional rendering
-{isLoading && <Spinner />}
-{error && <ErrorMessage error={error} />}
-{data && <DataDisplay data={data} />}
-
-// ❌ BAD: Ternary hell
-{isLoading ? <Spinner /> : error ? <ErrorMessage error={error} /> : data ? <DataDisplay data={data} /> : null}
-```
-
-## API Design Standards
-
-### REST API Conventions
-
-```
-GET    /api/markets              # List all markets
-GET    /api/markets/:id          # Get specific market
-POST   /api/markets              # Create new market
-PUT    /api/markets/:id          # Update market (full)
-PATCH  /api/markets/:id          # Update market (partial)
-DELETE /api/markets/:id          # Delete market
-
-# Query parameters for filtering
-GET /api/markets?status=active&limit=10&offset=0
-```
-
-### Response Format
-
-```typescript
-// ✅ GOOD: Consistent response structure
-interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-  meta?: {
-    total: number
-    page: number
-    limit: number
-  }
+    public StudentService(
+        IStudentRepository repository,
+        ILogger<StudentService> logger)
+    {
+        _repository = repository;
+        _logger = logger;
+    }
 }
 
-// Success response
-return NextResponse.json({
-  success: true,
-  data: markets,
-  meta: { total: 100, page: 1, limit: 10 }
-})
-
-// Error response
-return NextResponse.json({
-  success: false,
-  error: 'Invalid request'
-}, { status: 400 })
+// Registration in Program.cs
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IStudentService, StudentService>();
 ```
 
 ### Input Validation
 
-```typescript
-import { z } from 'zod'
+```csharp
+using System.ComponentModel.DataAnnotations;
 
-// ✅ GOOD: Schema validation
-const CreateMarketSchema = z.object({
-  name: z.string().min(1).max(200),
-  description: z.string().min(1).max(2000),
-  endDate: z.string().datetime(),
-  categories: z.array(z.string()).min(1)
-})
+// ✅ GOOD: Data annotation validation
+public class CreateStudentDto
+{
+    [Required]
+    [StringLength(50, MinimumLength = 1)]
+    public string LastName { get; init; } = default!;
 
-export async function POST(request: Request) {
-  const body = await request.json()
+    [Required]
+    [StringLength(50, MinimumLength = 1)]
+    public string FirstMidName { get; init; } = default!;
 
-  try {
-    const validated = CreateMarketSchema.parse(body)
-    // Proceed with validated data
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        success: false,
-        error: 'Validation failed',
-        details: error.errors
-      }, { status: 400 })
-    }
-  }
+    [DataType(DataType.Date)]
+    public DateTime EnrollmentDate { get; init; }
 }
+
+// In controller — model binding validates automatically
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create([Bind("LastName,FirstMidName,EnrollmentDate")] CreateStudentDto dto)
+{
+    if (!ModelState.IsValid) return View(dto);
+    // proceed
+}
+```
+
+## Entity Framework Core
+
+### Query Best Practices
+
+```csharp
+// ✅ GOOD: Select only needed columns, use AsNoTracking for reads
+var students = await _context.Students
+    .AsNoTracking()
+    .Where(s => s.EnrollmentDate >= startDate)
+    .Select(s => new StudentDto(s.LastName, s.FirstMidName, s.EnrollmentDate))
+    .ToListAsync();
+
+// ❌ BAD: Load everything
+var students = await _context.Students.ToListAsync();
+```
+
+### Include Navigation Properties Explicitly
+
+```csharp
+// ✅ GOOD: Explicit includes
+var student = await _context.Students
+    .Include(s => s.Enrollments)
+        .ThenInclude(e => e.Course)
+    .FirstOrDefaultAsync(s => s.Id == id);
+
+// ❌ BAD: Relying on lazy loading (performance trap)
+var student = await _context.Students.FindAsync(id);
+var enrollments = student.Enrollments; // N+1 query
 ```
 
 ## File Organization
 
-### Project Structure
+### Project Structure (Clean Architecture)
 
 ```
-src/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   ├── markets/           # Market pages
-│   └── (auth)/           # Auth pages (route groups)
-├── components/            # React components
-│   ├── ui/               # Generic UI components
-│   ├── forms/            # Form components
-│   └── layouts/          # Layout components
-├── hooks/                # Custom React hooks
-├── lib/                  # Utilities and configs
-│   ├── api/             # API clients
-│   ├── utils/           # Helper functions
-│   └── constants/       # Constants
-├── types/                # TypeScript types
-└── styles/              # Global styles
+ContosoUniversity.sln
+├── ContosoUniversity.Core/          # Domain layer
+│   ├── Entities/                    # Domain entities
+│   └── Interfaces/                  # Repository interfaces
+├── ContosoUniversity.Infrastructure/ # Data access layer
+│   ├── Data/                        # DbContext, migrations
+│   └── Repositories/               # Repository implementations
+├── ContosoUniversity.Web/           # Presentation layer
+│   ├── Controllers/                 # MVC controllers
+│   ├── Models/                      # View models & DTOs
+│   └── Views/                       # Razor views
+├── ContosoUniversity.Tests/         # Unit & integration tests
+└── ContosoUniversity.PlaywrightTests/ # E2E tests
 ```
 
 ### File Naming
 
 ```
-components/Button.tsx          # PascalCase for components
-hooks/useAuth.ts              # camelCase with 'use' prefix
-lib/formatDate.ts             # camelCase for utilities
-types/market.types.ts         # camelCase with .types suffix
+Entities/Student.cs              # PascalCase, singular nouns
+Controllers/StudentsController.cs # PascalCase, plural + Controller suffix
+Interfaces/IStudentRepository.cs  # PascalCase, I prefix for interfaces
+Models/StudentDto.cs             # PascalCase with Dto suffix
 ```
 
 ## Comments & Documentation
 
 ### When to Comment
 
-```typescript
+```csharp
 // ✅ GOOD: Explain WHY, not WHAT
-// Use exponential backoff to avoid overwhelming the API during outages
-const delay = Math.min(1000 * Math.pow(2, retryCount), 30000)
+// Use exponential backoff to avoid overwhelming the external API during outages
+var delay = Math.Min(1000 * Math.Pow(2, retryCount), 30000);
 
-// Deliberately using mutation here for performance with large arrays
-items.push(newItem)
+// Deliberately bypassing change tracking for bulk read performance
+var results = await _context.Students.AsNoTracking().ToListAsync();
 
 // ❌ BAD: Stating the obvious
 // Increment counter by 1
-count++
+count++;
 
-// Set name to user's name
-name = user.name
+// Set name to student's name
+name = student.LastName;
 ```
 
-### JSDoc for Public APIs
+### XML Documentation for Public APIs
 
-```typescript
-/**
- * Searches markets using semantic similarity.
- *
- * @param query - Natural language search query
- * @param limit - Maximum number of results (default: 10)
- * @returns Array of markets sorted by similarity score
- * @throws {Error} If OpenAI API fails or Redis unavailable
- *
- * @example
- * ```typescript
- * const results = await searchMarkets('election', 5)
- * console.log(results[0].name) // "Trump vs Biden"
- * ```
- */
-export async function searchMarkets(
-  query: string,
-  limit: number = 10
-): Promise<Market[]> {
-  // Implementation
+```csharp
+/// <summary>
+/// Retrieves a student by their unique identifier, including enrollment data.
+/// </summary>
+/// <param name="id">The student's unique identifier.</param>
+/// <returns>The student with enrollments, or null if not found.</returns>
+/// <exception cref="DataAccessException">Thrown when the database is unavailable.</exception>
+public async Task<Student?> GetStudentByIdAsync(int id)
+{
+    // Implementation
 }
 ```
 
 ## Performance Best Practices
 
-### Memoization
+### Caching
 
-```typescript
-import { useMemo, useCallback } from 'react'
-
-// ✅ GOOD: Memoize expensive computations
-const sortedMarkets = useMemo(() => {
-  return markets.sort((a, b) => b.volume - a.volume)
-}, [markets])
-
-// ✅ GOOD: Memoize callbacks
-const handleSearch = useCallback((query: string) => {
-  setSearchQuery(query)
-}, [])
-```
-
-### Lazy Loading
-
-```typescript
-import { lazy, Suspense } from 'react'
-
-// ✅ GOOD: Lazy load heavy components
-const HeavyChart = lazy(() => import('./HeavyChart'))
-
-export function Dashboard() {
-  return (
-    <Suspense fallback={<Spinner />}>
-      <HeavyChart />
-    </Suspense>
-  )
+```csharp
+// ✅ GOOD: Use IMemoryCache for frequently accessed data
+public async Task<IEnumerable<Department>> GetDepartmentsAsync()
+{
+    return await _cache.GetOrCreateAsync("departments", async entry =>
+    {
+        entry.SlidingExpiration = TimeSpan.FromMinutes(10);
+        return await _context.Departments.AsNoTracking().ToListAsync();
+    });
 }
 ```
 
-### Database Queries
+### Pagination
 
-```typescript
-// ✅ GOOD: Select only needed columns
-const { data } = await supabase
-  .from('markets')
-  .select('id, name, status')
-  .limit(10)
-
-// ❌ BAD: Select everything
-const { data } = await supabase
-  .from('markets')
-  .select('*')
+```csharp
+// ✅ GOOD: Always paginate large result sets
+public async Task<PaginatedList<Student>> GetStudentsAsync(int pageIndex, int pageSize)
+{
+    return await PaginatedList<Student>.CreateAsync(
+        _context.Students.AsNoTracking().OrderBy(s => s.LastName),
+        pageIndex,
+        pageSize);
+}
 ```
 
 ## Testing Standards
 
 ### Test Structure (AAA Pattern)
 
-```typescript
-test('calculates similarity correctly', () => {
-  // Arrange
-  const vector1 = [1, 0, 0]
-  const vector2 = [0, 1, 0]
+```csharp
+[Fact]
+public async Task GetStudentById_ExistingId_ReturnsStudent()
+{
+    // Arrange
+    var expectedStudent = new Student { Id = 1, LastName = "Smith" };
+    _mockRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(expectedStudent);
 
-  // Act
-  const similarity = calculateCosineSimilarity(vector1, vector2)
+    // Act
+    var result = await _service.GetStudentByIdAsync(1);
 
-  // Assert
-  expect(similarity).toBe(0)
-})
+    // Assert
+    Assert.NotNull(result);
+    Assert.Equal("Smith", result.LastName);
+}
 ```
 
 ### Test Naming
 
-```typescript
-// ✅ GOOD: Descriptive test names
-test('returns empty array when no markets match query', () => { })
-test('throws error when OpenAI API key is missing', () => { })
-test('falls back to substring search when Redis unavailable', () => { })
+```csharp
+// ✅ GOOD: MethodName_Condition_ExpectedResult pattern
+[Fact] public async Task GetById_NonExistentId_ReturnsNotFound() { }
+[Fact] public void Enroll_ExceedsMaxCredits_ThrowsException() { }
+[Fact] public async Task Create_ValidStudent_ReturnsCreatedResult() { }
 
 // ❌ BAD: Vague test names
-test('works', () => { })
-test('test search', () => { })
+[Fact] public void Works() { }
+[Fact] public void TestStudent() { }
 ```
 
 ## Code Smell Detection
 
 Watch for these anti-patterns:
 
-### 1. Long Functions
-```typescript
-// ❌ BAD: Function > 50 lines
-function processMarketData() {
-  // 100 lines of code
-}
+### 1. Long Methods
+```csharp
+// ❌ BAD: Method > 50 lines
+public async Task ProcessEnrollment() { /* 100 lines */ }
 
-// ✅ GOOD: Split into smaller functions
-function processMarketData() {
-  const validated = validateData()
-  const transformed = transformData(validated)
-  return saveData(transformed)
+// ✅ GOOD: Split into smaller methods
+public async Task ProcessEnrollment()
+{
+    var validated = await ValidateEnrollment();
+    var transformed = MapToEntity(validated);
+    await SaveEnrollment(transformed);
 }
 ```
 
 ### 2. Deep Nesting
-```typescript
+```csharp
 // ❌ BAD: 5+ levels of nesting
-if (user) {
-  if (user.isAdmin) {
-    if (market) {
-      if (market.isActive) {
-        if (hasPermission) {
-          // Do something
+if (student != null)
+{
+    if (student.IsActive)
+    {
+        if (course != null)
+        {
+            if (course.HasCapacity)
+            {
+                // Do something
+            }
         }
-      }
     }
-  }
 }
 
-// ✅ GOOD: Early returns
-if (!user) return
-if (!user.isAdmin) return
-if (!market) return
-if (!market.isActive) return
-if (!hasPermission) return
+// ✅ GOOD: Early returns (guard clauses)
+if (student is null) return;
+if (!student.IsActive) return;
+if (course is null) return;
+if (!course.HasCapacity) return;
 
 // Do something
 ```
 
 ### 3. Magic Numbers
-```typescript
+```csharp
 // ❌ BAD: Unexplained numbers
-if (retryCount > 3) { }
-setTimeout(callback, 500)
+if (credits > 18) { }
 
 // ✅ GOOD: Named constants
-const MAX_RETRIES = 3
-const DEBOUNCE_DELAY_MS = 500
+private const int MaxCreditsPerSemester = 18;
 
-if (retryCount > MAX_RETRIES) { }
-setTimeout(callback, DEBOUNCE_DELAY_MS)
+if (credits > MaxCreditsPerSemester) { }
 ```
 
 **Remember**: Code quality is not negotiable. Clear, maintainable code enables rapid development and confident refactoring.

@@ -43,31 +43,25 @@ A 4-phase loop that progressively refines context:
 
 Initial broad query to gather candidate files:
 
-```javascript
-// Start with high-level intent
-const initialQuery = {
-  patterns: ['src/**/*.ts', 'lib/**/*.ts'],
-  keywords: ['authentication', 'user', 'session'],
-  excludes: ['*.test.ts', '*.spec.ts']
-};
+```
+Start with high-level intent:
+  patterns: ['**/*.cs', 'ContosoUniversity.Core/**/*.cs']
+  keywords: ['Student', 'Enrollment', 'Repository']
+  excludes: ['*Tests*.cs', 'Migrations/*.cs']
 
-// Dispatch to retrieval agent
-const candidates = await retrieveFiles(initialQuery);
+Dispatch to retrieval agent to find candidate files.
 ```
 
 ### Phase 2: EVALUATE
 
 Assess retrieved content for relevance:
 
-```javascript
-function evaluateRelevance(files, task) {
-  return files.map(file => ({
-    path: file.path,
-    relevance: scoreRelevance(file.content, task),
-    reason: explainRelevance(file.content, task),
-    missingContext: identifyGaps(file.content, task)
-  }));
-}
+```
+For each file, score relevance:
+  path: file path
+  relevance: 0.0 - 1.0 score against the task
+  reason: why this file matters
+  missingContext: what gaps remain
 ```
 
 Scoring criteria:
@@ -80,55 +74,25 @@ Scoring criteria:
 
 Update search criteria based on evaluation:
 
-```javascript
-function refineQuery(evaluation, previousQuery) {
-  return {
-    // Add new patterns discovered in high-relevance files
-    patterns: [...previousQuery.patterns, ...extractPatterns(evaluation)],
-
-    // Add terminology found in codebase
-    keywords: [...previousQuery.keywords, ...extractKeywords(evaluation)],
-
-    // Exclude confirmed irrelevant paths
-    excludes: [...previousQuery.excludes, ...evaluation
-      .filter(e => e.relevance < 0.2)
-      .map(e => e.path)
-    ],
-
-    // Target specific gaps
-    focusAreas: evaluation
-      .flatMap(e => e.missingContext)
-      .filter(unique)
-  };
-}
+```
+Refine the query:
+  - Add new patterns discovered in high-relevance files
+  - Add terminology found in the codebase (e.g., discovered "SchoolContext" instead of "DbContext")
+  - Exclude confirmed irrelevant paths (relevance < 0.2)
+  - Target specific gaps identified in Phase 2
 ```
 
 ### Phase 4: LOOP
 
 Repeat with refined criteria (max 3 cycles):
 
-```javascript
-async function iterativeRetrieve(task, maxCycles = 3) {
-  let query = createInitialQuery(task);
-  let bestContext = [];
-
-  for (let cycle = 0; cycle < maxCycles; cycle++) {
-    const candidates = await retrieveFiles(query);
-    const evaluation = evaluateRelevance(candidates, task);
-
-    // Check if we have sufficient context
-    const highRelevance = evaluation.filter(e => e.relevance >= 0.7);
-    if (highRelevance.length >= 3 && !hasCriticalGaps(evaluation)) {
-      return highRelevance;
-    }
-
-    // Refine and continue
-    query = refineQuery(evaluation, query);
-    bestContext = mergeContext(bestContext, highRelevance);
-  }
-
-  return bestContext;
-}
+```
+For up to 3 cycles:
+  1. Retrieve files matching refined query
+  2. Evaluate relevance of each candidate
+  3. If 3+ files score >= 0.7 and no critical gaps remain → done
+  4. Otherwise, refine query and repeat
+  5. After 3 cycles, return best context collected so far
 ```
 
 ## Practical Examples
@@ -136,42 +100,37 @@ async function iterativeRetrieve(task, maxCycles = 3) {
 ### Example 1: Bug Fix Context
 
 ```
-Task: "Fix the authentication token expiry bug"
+Task: "Fix the enrollment date validation bug"
 
 Cycle 1:
-  DISPATCH: Search for "token", "auth", "expiry" in src/**
-  EVALUATE: Found auth.ts (0.9), tokens.ts (0.8), user.ts (0.3)
-  REFINE: Add "refresh", "jwt" keywords; exclude user.ts
+  DISPATCH: Search for "Enrollment", "Date", "Validation" in **/*.cs
+  EVALUATE: Found Enrollment.cs (0.9), StudentController.cs (0.8), Student.cs (0.3)
+  REFINE: Add "DataAnnotations", "ModelState" keywords; exclude Student.cs
 
 Cycle 2:
   DISPATCH: Search refined terms
-  EVALUATE: Found session-manager.ts (0.95), jwt-utils.ts (0.85)
+  EVALUATE: Found CreateStudentDto.cs (0.95), ValidationHelper.cs (0.85)
   REFINE: Sufficient context (2 high-relevance files)
 
-Result: auth.ts, tokens.ts, session-manager.ts, jwt-utils.ts
+Result: Enrollment.cs, StudentController.cs, CreateStudentDto.cs, ValidationHelper.cs
 ```
 
 ### Example 2: Feature Implementation
 
 ```
-Task: "Add rate limiting to API endpoints"
+Task: "Add pagination to the Students index page"
 
 Cycle 1:
-  DISPATCH: Search "rate", "limit", "api" in routes/**
-  EVALUATE: No matches - codebase uses "throttle" terminology
-  REFINE: Add "throttle", "middleware" keywords
+  DISPATCH: Search "Student", "Index", "List" in Controllers/ and Views/
+  EVALUATE: Found StudentsController.cs (0.9), Index.cshtml (0.7)
+  REFINE: Need PaginatedList helper
 
 Cycle 2:
-  DISPATCH: Search refined terms
-  EVALUATE: Found throttle.ts (0.9), middleware/index.ts (0.7)
-  REFINE: Need router patterns
-
-Cycle 3:
-  DISPATCH: Search "router", "express" patterns
-  EVALUATE: Found router-setup.ts (0.8)
+  DISPATCH: Search "Paginate", "PageSize", "PageIndex"
+  EVALUATE: Found PaginatedList.cs (0.95), found PageSize in appsettings (0.6)
   REFINE: Sufficient context
 
-Result: throttle.ts, middleware/index.ts, router-setup.ts
+Result: StudentsController.cs, Index.cshtml, PaginatedList.cs
 ```
 
 ## Integration with Agents
