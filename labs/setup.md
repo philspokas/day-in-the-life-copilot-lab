@@ -84,13 +84,12 @@ code .
 
 | Directory | Contents | Count |
 |-----------|----------|-------|
-| `.github/agents/` | Custom agent profiles (`.agent.md`) | 30 |
-| `.github/skills/` | Agent skills (`SKILL.md`) | 29 |
-| `.github/prompts/` | Prompt templates (`.prompt.md`) | 36 |
+| `.github/skills/` | Agent skills (`SKILL.md`) | 10 |
+| `.github/prompts/` | Prompt templates (`.prompt.md`) | 20 |
 | `.github/hooks/` | Hook configuration | 1 |
-| `.github/instructions/` | Path-specific instructions | 6 |
+| `.github/instructions/` | Path-specific instructions (`.instructions.md`) | 3 |
 | `.copilot/` | MCP server configuration | 1 |
-| `scripts/hooks/` | Hook shell scripts | 12 |
+| `scripts/hooks/` | Hook shell scripts | 17 |
 | `ContosoUniversity.*` | .NET project files | 5 projects |
 
 3. Read the repository context document:

@@ -10,19 +10,50 @@ References:
 - [Custom instructions](https://docs.github.com/en/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot)
 - [Prompt files](https://docs.github.com/en/copilot/using-github-copilot/using-prompt-files)
 
+## 1.0 Discover Agents from the Marketplace
+
+Before exploring the repo's built-in config, let's see what's available in the **Copilot CLI plugin marketplace** — a registry of community and first-party agents you can install and use immediately.
+
+🖥️ **In your terminal:**
+
+```bash
+# List registered marketplaces
+copilot plugin marketplace list
+
+# Browse available plugins in a marketplace
+copilot plugin marketplace browse awesome-copilot
+
+# Install a plugin (pick one that looks interesting!)
+copilot plugin install PLUGIN-NAME@awesome-copilot
+
+# Or install directly from a GitHub repo
+copilot plugin install OWNER/REPO
+
+# See what you have installed
+copilot plugin list
+```
+
+> 💡 **Key insight:** The marketplace gives you pre-built agents for common tasks — database management, testing, documentation, and more. In Lab 03, you'll learn to **create your own** agents. Think of marketplace agents as a starting point you can customize.
+
+References:
+- [Finding and installing plugins](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing)
+- [Creating custom agents](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli)
+
+---
+
 ## 1.1 The Configuration Ecosystem
 
 This repository ships with a rich set of Copilot configurations. Here's the map — the rest of the labs fill it in:
 
 | Directory | What | Count | Lab |
 |-----------|------|-------|-----|
-| `.github/agents/` | Specialized AI personas (`.agent.md`) | 30 | Lab 03 |
-| `.github/skills/` | Auto-activating knowledge packs (`SKILL.md`) | 29 | Lab 04 |
-| `.github/prompts/` | Reusable command templates (`.prompt.md`) | 36 | Lab 04 |
-| `.github/instructions/` | Path-specific rules (`.instructions.md`) | 6 | Lab 02 |
+| `.github/agents/` | Specialized AI personas (`.agent.md`) | 0 (created in Lab 03) | Lab 03 |
+| `.github/skills/` | Auto-activating knowledge packs (`SKILL.md`) | 10 | Lab 04 |
+| `.github/prompts/` | Reusable command templates (`.prompt.md`) | 20 | Lab 04 |
+| `.github/instructions/` | Path-specific rules (`.instructions.md`) | 3 | Lab 02 |
 | `.github/copilot-instructions.md` | Repository-wide rules (always loaded) | 1 | Lab 02 |
 | `AGENTS.md` | Project context (always loaded) | 1 | Lab 02 |
-| `.github/hooks/` | Lifecycle guardrails (`default.json`) | 1 | Lab 06 |
+| `.github/hooks/` | Lifecycle guardrails (`default.json`) | 7 | Lab 06 |
 | `.copilot/mcp-config.json` | External tool integrations | 5 servers | Lab 05 |
 | `.github/workflows/*.md` | Cloud-side AI automation (gh-aw) | 2 | Labs 08-09 |
 

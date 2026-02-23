@@ -8,7 +8,7 @@ This is the **Everything GitHub Copilot Hands-On Lab** — a comprehensive train
 
 - **Application**: ASP.NET Core 8 MVC with Entity Framework Core (ContosoUniversity)
 - **Architecture**: Clean architecture — Core (domain), Infrastructure (data), Web (MVC), Tests (xUnit), PlaywrightTests (E2E)
-- **Copilot Config**: 30 agents, 29 skills, 36 prompts, 12 hooks, 6 instructions, 5 MCP servers
+- **Copilot Config**: 0 agents (learners create during labs), 10 skills, 20 prompts, 7 hooks, 3 instructions, 5 MCP servers
 - **CI/CD**: GitHub Agentic Workflows (gh-aw) for PRD generation and code review
 
 ## Repository Structure
@@ -16,11 +16,11 @@ This is the **Everything GitHub Copilot Hands-On Lab** — a comprehensive train
 ```
 day-in-the-life-copilot-lab/
 ├── .github/
-│   ├── agents/                    # 30 custom agent profiles (.agent.md)
-│   ├── skills/                    # 29 agent skills (SKILL.md)
-│   ├── prompts/                   # 36 prompt templates (.prompt.md)
+│   ├── agents/                    # Empty — learners create agents during labs
+│   ├── skills/                    # 10 agent skills (SKILL.md)
+│   ├── prompts/                   # 20 prompt templates (.prompt.md)
 │   ├── hooks/                     # Hook configuration (default.json)
-│   ├── instructions/              # 6 path-specific instructions
+│   ├── instructions/              # 3 path-specific instructions
 │   ├── copilot-instructions.md    # Repository-wide instructions
 │   └── workflows/                 # GitHub Agentic Workflows
 ├── .copilot/

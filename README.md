@@ -1,56 +1,166 @@
 # Everything GitHub Copilot — Hands-On Lab
 
-**A comprehensive hands-on lab teaching the FULL GitHub Copilot agentic development experience.**
+A comprehensive, hands-on lab teaching the **full GitHub Copilot agentic development experience** — agents, skills, instructions, prompts, hooks, MCP servers, orchestration, and GitHub Agentic Workflows — all while working on a real .NET application.
 
-Learn to build, configure, and orchestrate AI agents using GitHub Copilot's complete feature set — agents, skills, instructions, prompts, hooks, MCP servers, and GitHub Agentic Workflows — all while working on a real .NET application.
-
----
-
-## What You'll Learn
-
-| Feature | Description | Lab |
-|---------|-------------|-----|
-| **Agents** | Custom `.agent.md` profiles with specialized roles | Lab 01, 03 |
-| **Skills** | `SKILL.md` files with progressive disclosure | Lab 01, 04 |
-| **Instructions** | `copilot-instructions.md` + `.instructions.md` | Lab 02 |
-| **AGENTS.md** | Repository-level context document | Lab 02 |
-| **Prompts** | `.prompt.md` reusable prompt templates | Lab 04 |
-| **Hooks** | Pre/post tool-use automation | Lab 06 |
-| **MCP Servers** | External tool integrations (context7, memory, LSP) | Lab 05 |
-| **Orchestration** | Multi-agent coordination workflows | Lab 07 |
-| **Agentic Workflows** | `gh-aw` CI/CD automation with AI agents | Lab 08, 09 |
-| **Session Management** | Cross-session persistence with Memory MCP | Lab 10 |
+> **Start here** → [Lab Setup & Instructions](labs/setup.md)
 
 ---
 
 ## Prerequisites
 
-- GitHub account with Copilot license (Individual, Business, or Enterprise)
-- [VS Code](https://code.visualstudio.com/) with [GitHub Copilot extension](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)
-- [GitHub Copilot CLI](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line) (`gh copilot`)
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [GitHub CLI](https://cli.github.com/) (`gh`) with `gh aw` extension for agentic workflows
-- Git
+| Requirement | Details |
+|------------|---------|
+| **GitHub account** | With Copilot license (Individual, Business, or Enterprise) |
+| **VS Code** | Latest version with [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension |
+| **GitHub CLI** | [Install `gh`](https://cli.github.com/) — verify with `gh --version` |
+| **Copilot CLI** | [Install guide](https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line) — verify with `gh copilot --version` |
+| **.NET 8 SDK** | [Download](https://dotnet.microsoft.com/download/dotnet/8.0) — verify with `dotnet --version` |
+| **Git** | [Install](https://git-scm.com/downloads) — configured with your GitHub credentials |
+| **gh-aw extension** | `gh extension install github/gh-aw` (for Labs 08–09) |
+
+### Permissions & Licensing
+
+Most labs (01–07, 10) work with **any Copilot license**. A few labs require specific plans or permissions:
+
+| Lab | Feature | Required License | GitHub Permissions |
+|-----|---------|-----------------|-------------------|
+| **Lab 08** | GitHub Agentic Workflows (`gh-aw`) | Copilot Business or Enterprise | Actions enabled, `contents: write`, `issues: read` |
+| **Lab 09** | Copilot Code Review (built-in PR reviews) | Copilot Pro+, Business, or Enterprise | Repo admin (to configure rulesets) |
+| All other labs | Agents, Skills, Instructions, Prompts, Hooks, MCP, Orchestration | Any Copilot license (Individual+) | Repo write access |
+
+> **Note:** If your organization restricts Copilot features via policy, check with your admin that agent mode, MCP servers, and Copilot CLI are enabled.
 
 ---
 
-## Lab Modules #TODO check timing or remove it
+## Quick Start
 
-| # | Module | Duration | Focus |
-|---|--------|----------|-------|
-| [Setup](labs/setup.md) | Fork, Prerequisites, Overview | 10 min | Fork repo, enable Actions, install tools |
-| [Lab 01](labs/lab01.md) | Exploring Copilot Configuration | 15 min | Discover agents, skills, instructions, prompts |
-| [Lab 02](labs/lab02.md) | Custom Instructions & AGENTS.md | 20 min | Instruction hierarchy, modify, extend |
-| [Lab 03](labs/lab03.md) | Creating a .NET Agent | 20 min | Build `dotnet-dev.agent.md` |
-| [Lab 04](labs/lab04.md) | Skills & Prompts | 20 min | Create skill, write prompt template |
-| [Lab 05](labs/lab05.md) | MCP Server Configuration | 20 min | Configure context7, memory, C# LSP |
-| [Lab 06](labs/lab06.md) | Hooks | 15 min | Pre/post tool hooks, build checks |
-| [Lab 07](labs/lab07.md) | Multi-Agent Orchestration | 25 min | Orchestrator → dev → QA → review |
-| [Lab 08](labs/lab08.md) | gh-aw: PRD Generation | 20 min | Branch creation triggers PM agent |
-| [Lab 09](labs/lab09.md) | Copilot Code Review | 20 min | Built-in AI-powered pull request reviews |
-| [Lab 10](labs/lab10.md) | Session Management & Memory | 15 min | Memory MCP, continuous learning, session handoffs |
+### 1. Fork & Clone
 
-**Total Duration: ~3 hours**
+```bash
+# Fork this repository on GitHub, then:
+git clone https://github.com/YOUR-USERNAME/day-in-the-life-copilot-lab.git
+cd day-in-the-life-copilot-lab
+```
+
+### 2. Build
+
+```bash
+dotnet build ContosoUniversity.sln
+```
+
+### 3. Open in VS Code
+
+```bash
+code .
+```
+
+### 4. Verify
+
+| Check | Command | Expected |
+|-------|---------|----------|
+| .NET build | `dotnet build ContosoUniversity.sln` | `Build succeeded` |
+| Tests pass | `dotnet test ContosoUniversity.sln` | All tests pass |
+| Copilot CLI | `gh copilot --version` | Version number |
+| Extensions | VS Code → Extensions panel | GitHub Copilot installed & signed in |
+
+### 5. Start the labs
+
+Open [`labs/setup.md`](labs/setup.md) and follow the instructions.
+
+---
+
+## The Application
+
+**ContosoUniversity** is a brownfield .NET 8 web application with clean architecture. You'll use it throughout every lab to build, test, and orchestrate AI-powered development workflows.
+
+```
+ASP.NET MVC (Web)  →  EF Core (Infrastructure)  →  SQL Server / SQLite
+```
+
+```mermaid
+erDiagram
+    Department ||--o{ Course : offers
+    Department ||--o| Instructor : "administered by"
+    Course ||--o{ Enrollment : has
+    Student ||--o{ Enrollment : "enrolled in"
+    Instructor }o--o{ Course : teaches
+    Instructor ||--o| OfficeAssignment : has
+    Enrollment }o--o| Grade : receives
+```
+
+| Project | Layer | Purpose |
+|---------|-------|---------|
+| **ContosoUniversity.Core** | Domain | Models, interfaces, business rules |
+| **ContosoUniversity.Infrastructure** | Data | EF Core, repositories, services |
+| **ContosoUniversity.Web** | Presentation | MVC controllers, views, DI |
+| **ContosoUniversity.Tests** | Testing | xUnit + WebApplicationFactory |
+| **ContosoUniversity.PlaywrightTests** | E2E | Browser-based Playwright tests |
+
+---
+
+## What You'll Learn
+
+| Feature | What It Does | Lab |
+|---------|-------------|-----|
+| **Plugin Marketplace** | Browse and install community agents from the CLI marketplace | 01 |
+| **Agents** | Custom `.agent.md` profiles with specialized AI roles | 01, 03 |
+| **Skills** | `SKILL.md` auto-activating knowledge packs | 01, 04 |
+| **Instructions** | `copilot-instructions.md` + path-scoped `.instructions.md` | 02 |
+| **AGENTS.md** | Repository-level context — always loaded | 02 |
+| **Prompts** | `.prompt.md` reusable command templates | 04 |
+| **MCP Servers** | External tool integrations (Context7, Memory, Microsoft Learn) | 05 |
+| **Hooks** | Pre/post tool-use lifecycle automation | 06 |
+| **Orchestration** | Multi-agent coordination workflows | 07 |
+| **Agentic Workflows** | `gh-aw` CI/CD automation with AI agents | 08, 09 |
+| **Session Management** | Cross-session persistence with Memory MCP | 10 |
+
+---
+
+## Lab Modules
+
+| Lab | Module | Focus |
+|-----|--------|-------|
+| [Setup](labs/setup.md) | Fork, Prerequisites, Overview | Fork repo, enable Actions, install tools |
+| [Lab 01](labs/lab01.md) | Exploring Copilot Configuration | Plugin marketplace, agents, skills, instructions, prompts |
+| [Lab 02](labs/lab02.md) | Custom Instructions & AGENTS.md | Instruction hierarchy, modify, extend |
+| [Lab 03](labs/lab03.md) | Creating a .NET Agent | Build `dotnet-dev.agent.md` |
+| [Lab 04](labs/lab04.md) | Skills & Prompts | Create a skill, write a prompt template |
+| [Lab 05](labs/lab05.md) | MCP Server Configuration | Configure Context7, Memory, C# LSP |
+| [Lab 06](labs/lab06.md) | Hooks | Pre/post tool hooks, build checks |
+| [Lab 07](labs/lab07.md) | Multi-Agent Orchestration | Orchestrator → dev → QA → review |
+| [Lab 08](labs/lab08.md) | gh-aw: PRD Generation | Branch creation triggers PM agent |
+| [Lab 09](labs/lab09.md) | Copilot Code Review | AI-powered pull request reviews |
+| [Lab 10](labs/lab10.md) | Session Management & Memory | Memory MCP, continuous learning, handoffs |
+
+**Total: ~3 hours** (10 labs — self-paced or presenter-led)
+
+---
+
+## Pre-Configured Copilot Features
+
+This repo ships with a rich set of configurations for you to explore and extend:
+
+| Category | Count | Examples |
+|----------|-------|---------|
+| **Agents** | 0 (you build them!) | Learners create agents in Labs 03, 07 — see `solutions/` for examples |
+| **Skills** | 10 | `coding-standards`, `tdd-workflow`, `security-review`, `verification-loop`, `frontend-patterns` |
+| **Prompts** | 20 | `/plan`, `/commit`, `/code-review`, `/tdd`, `/handoff`, `/create-agent`, `/create-test` |
+| **Hooks** | 7 | Secret scanning, code formatting, type checking, continuous learning, error logging |
+| **MCP Servers** | 5 | Context7 (library docs), Memory (knowledge graph), Sequential Thinking, WorkIQ, Microsoft Learn |
+| **Instructions** | 3 | Path-specific rules for `.cs`, test files, and more |
+
+---
+
+## Useful Commands
+
+| Task | Command |
+|------|---------|
+| Build solution | `dotnet build ContosoUniversity.sln` |
+| Run tests | `dotnet test ContosoUniversity.sln` |
+| Run web app | `dotnet run --project ContosoUniversity.Web` |
+| Run specific test | `dotnet test --filter "FullyQualifiedName~TestName"` |
+| Check Copilot CLI | `gh copilot --version` |
+| Install gh-aw | `gh extension install github/gh-aw` |
 
 ---
 
@@ -59,11 +169,11 @@ Learn to build, configure, and orchestrate AI agents using GitHub Copilot's comp
 ```
 day-in-the-life-copilot-lab/
 ├── .github/
-│   ├── agents/                    # 30 custom agent profiles (.agent.md)
-│   ├── skills/                    # 29 agent skills (SKILL.md)
-│   ├── prompts/                   # 36 prompt templates (.prompt.md)
+│   ├── agents/                    # Agent profiles — created during labs
+│   ├── skills/                    # 10 agent skills (SKILL.md)
+│   ├── prompts/                   # 20 prompt templates (.prompt.md)
 │   ├── hooks/                     # Hook configuration (default.json)
-│   ├── instructions/              # 6 path-specific instructions (.instructions.md)
+│   ├── instructions/              # 3 path-specific instructions (.instructions.md)
 │   ├── copilot-instructions.md    # Repository-wide instructions
 │   └── workflows/                 # GitHub Agentic Workflows (.md + .lock.yml)
 ├── .copilot/
@@ -74,78 +184,51 @@ day-in-the-life-copilot-lab/
 ├── ContosoUniversity.Web/         # ASP.NET MVC web application
 ├── ContosoUniversity.Tests/       # xUnit unit and integration tests
 ├── ContosoUniversity.PlaywrightTests/ # Playwright E2E tests
-├── labs/                          # Hands-on lab modules
+├── labs/                          # Hands-on lab modules (10 labs)
 ├── solutions/                     # Reference solutions for each lab
 ├── docs/                          # Research and reference documentation
-├── scripts/hooks/                 # Hook shell scripts
+├── scripts/hooks/                 # Hook shell scripts (Bash + PowerShell)
 ├── mcp-configs/                   # MCP server reference configurations
 ├── AGENTS.md                      # Repository-level agent context
-├── CONTRIBUTING.md                # Contribution guidelines
-└── README.md                      # This file
-```
-
----
-
-## The Brownfield Project: ContosoUniversity
-
-The lab uses **ContosoUniversity**, a .NET 8 web application with clean architecture:
-
-- **ContosoUniversity.Core** — Domain models (Student, Course, Instructor, Department, Enrollment)
-- **ContosoUniversity.Infrastructure** — Entity Framework Core, repositories, external services
-- **ContosoUniversity.Web** — ASP.NET MVC controllers, views, dependency injection
-- **ContosoUniversity.Tests** — xUnit tests with WebApplicationFactory
-- **ContosoUniversity.PlaywrightTests** — End-to-end browser tests
-
----
-
-## Pre-Configured Copilot Features
-
-This repo ships with a rich set of configurations for you to explore and extend:
-
-### Agents (30)
-Specialized profiles including: `dev`, `qa`, `pm`, `orchestrator`, `code-reviewer`, `planner`, `architect`, `tdd-guide`, `security-reviewer`, `doc-writer`, and 20 more.
-
-### Skills (29)
-Auto-activating knowledge bases: `coding-standards`, `tdd-workflow`, `security-review`, `verification-loop`, `frontend-patterns`, `backend-patterns`, `golang-patterns`, and more.
-
-### Prompts (36)
-Reusable templates: `/plan`, `/commit`, `/code-review`, `/tdd`, `/handoff`, `/create-agent`, `/create-test`, and more.
-
-### Hooks (12)
-Automation scripts for: secret scanning, code formatting, type checking, documentation blocking, continuous learning observation, and error logging.
-
-### MCP Servers (5)
-Pre-configured: Context7 (library docs), Memory (knowledge graph), Sequential Thinking (reasoning), WorkIQ (Microsoft 365), Microsoft Learn (Azure docs).
-
----
-
-## Quick Start
-
-```bash
-# 1. Fork this repository on GitHub
-
-# 2. Clone your fork
-git clone https://github.com/YOUR-USERNAME/day-in-the-life-copilot-lab.git
-cd day-in-the-life-copilot-lab
-
-# 3. Verify .NET project builds
-dotnet build ContosoUniversity.sln
-
-# 4. Open in VS Code
-code .
-
-# 5. Start the first lab
-# Open labs/setup.md and follow the instructions
+└── TROUBLESHOOTING.md             # Common issues and fixes
 ```
 
 ---
 
 ## GitHub Agentic Workflows
 
-This lab uses [GitHub Agentic Workflows](https://github.com/github/gh-aw) (gh-aw) — a new way to author GitHub Actions using Markdown with YAML frontmatter. Two workflows are included:
+This lab uses [GitHub Agentic Workflows](https://github.com/github/gh-aw) (gh-aw) — author GitHub Actions using Markdown with YAML frontmatter. Two workflows are included:
 
-1. **PRD Generation** (`.github/workflows/generate-prd.md`) — Triggers on feature branch creation, runs a PM agent to generate a Product Requirements Document.
-2. **Automated Code Review** (`.github/workflows/code-review.md`) — Triggers on pull requests, runs a code review agent to provide feedback.
+| Workflow | Trigger | What It Does |
+|----------|---------|-------------|
+| **PRD Generation** | Feature branch created | PM agent generates a Product Requirements Document |
+| **Code Review** | Pull request opened | Code review agent provides automated feedback |
+
+---
+
+## Workshop Content
+
+| Resource | Description |
+|----------|-------------|
+| [Setup Guide](labs/setup.md) | Fork, prerequisites, environment setup |
+| [Lab Modules](labs/) | 10 hands-on labs — start here |
+| [Reference Solutions](solutions/) | Completed solutions for each lab |
+| [Troubleshooting](TROUBLESHOOTING.md) | Common issues and fixes |
+| [AGENTS.md](AGENTS.md) | Full project context document |
+
+---
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| Copilot CLI not authenticated | Run `gh auth login` and follow prompts |
+| MCP servers not loading | Copy `.copilot/mcp-config.json` to `~/.copilot/`, restart VS Code |
+| `dotnet build` fails | Verify .NET 8 SDK: `dotnet --version` — [download](https://dotnet.microsoft.com/download/dotnet/8.0) |
+| Skills not activating | Reference the skill explicitly in your prompt, or check `SKILL.md` frontmatter |
+| Copilot not responding | Verify the extension is signed in and enabled in VS Code |
+
+For the full troubleshooting guide, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ---
 
@@ -156,3 +239,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on adding agents, skills, 
 ## License
 
 [MIT](LICENSE)
+
+---
+
+*Built with GitHub Copilot.*
