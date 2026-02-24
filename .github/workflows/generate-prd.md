@@ -9,7 +9,7 @@ tools:
   github:
     toolsets: [repos, issues]
   edit:
-  bash: ["dotnet"]
+  bash: ["dotnet", "mkdir"]
 runtimes:
   dotnet:
     version: "8.0"
@@ -32,7 +32,8 @@ You are a Product Manager agent. When a new feature or story branch is created, 
    - Use this information to enrich the PRD (don't just copy — synthesize with codebase analysis)
    - Reference the issue number in the PRD (e.g., "Related Issue: #123")
 3. Analyze the ContosoUniversity codebase to understand the current architecture
-4. Generate a PRD document at `docs/prd/PRD-{branch-name}.md` (replacing `{branch-name}` with the actual branch name)
+4. Create the output directory if it doesn't exist: `mkdir -p docs/prd`
+5. Write the PRD document to `docs/prd/PRD-{branch-name}.md` (replacing `{branch-name}` with the actual branch name)
 
 ### PRD Template
 

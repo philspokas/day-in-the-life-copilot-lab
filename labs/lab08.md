@@ -62,7 +62,7 @@ cat .github/workflows/generate-prd.md
 | `permissions.issues` | `read` | Agent can read issues for context |
 | `tools.github.toolsets` | `[repos, issues]` | GitHub API tools: read repo contents and issues |
 | `tools.edit` | (enabled) | Agent can create and edit files |
-| `tools.bash` | `["dotnet"]` | Agent can run bash commands with dotnet available |
+| `tools.bash` | `["dotnet", "mkdir"]` | Agent can run bash commands with dotnet and mkdir available |
 | `runtimes.dotnet` | `8.0` | .NET 8 SDK installed in the runner |
 | `safe-outputs.create-pull-request` | (configured) | Agent creates a PR with the generated PRD |
 | `description` | (text) | Shown in the GitHub Actions UI |
