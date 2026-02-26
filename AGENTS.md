@@ -1,4 +1,5 @@
 # AGENTS.md
+<!-- Keep this file minimal: only include things agents can't discover on their own. -->
 
 ## Project Overview
 
@@ -11,31 +12,11 @@ This is the **Everything GitHub Copilot Hands-On Lab** — a comprehensive train
 - **Copilot Config**: 2 agents, 10 skills, 21 prompts, 7 hooks, 3 instructions, 5 MCP servers
 - **CI/CD**: GitHub Agentic Workflows (gh-aw) for PRD generation and code review
 
-## Repository Structure
+## Build & Test
 
-```
-day-in-the-life-copilot-lab/
-├── .github/
-│   ├── agents/                    # 2 agent profiles (.agent.md) — more created during labs
-│   ├── skills/                    # 10 agent skills (SKILL.md)
-│   ├── prompts/                   # 21 prompt templates (.prompt.md)
-│   ├── hooks/                     # Hook configuration (default.json)
-│   ├── instructions/              # 3 path-specific instructions
-│   ├── copilot-instructions.md    # Repository-wide instructions
-│   └── workflows/                 # GitHub Agentic Workflows
-├── .copilot/
-│   └── mcp-config.json            # MCP server configuration
-├── ContosoUniversity.sln          # .NET solution
-├── ContosoUniversity.Core/        # Domain layer
-├── ContosoUniversity.Infrastructure/  # Data access layer
-├── ContosoUniversity.Web/         # Presentation layer (ASP.NET MVC)
-├── ContosoUniversity.Tests/       # Unit and integration tests (xUnit)
-├── ContosoUniversity.PlaywrightTests/ # E2E tests (Playwright)
-├── labs/                          # Hands-on lab modules
-├── solutions/                     # Reference solutions
-├── docs/                          # Documentation
-├── scripts/hooks/                 # Hook shell scripts
-└── mcp-configs/                   # MCP reference configs
+```shell
+dotnet build ContosoUniversity.sln
+dotnet test
 ```
 
 ## Agent Suite

@@ -7,6 +7,7 @@ In this lab you will modify custom instructions and AGENTS.md to customize Copil
 References:
 - [Adding custom instructions](https://docs.github.com/en/copilot/customizing-copilot/adding-custom-instructions-for-github-copilot)
 - [How to write a great AGENTS.md](https://github.blog/ai-and-ml/github-copilot/how-to-write-a-great-agents-md-lessons-from-over-2500-repositories/)
+- [Research: Do context files actually help?](https://www.arxiv.org/abs/2506.17056) — Evidence-based guidance on what to include
 
 ## 2.1 Modify copilot-instructions.md
 
@@ -139,6 +140,8 @@ Where should I put database query logic in ContosoUniversity?
 
 > 💡 **AGENTS.md vs copilot-instructions.md:** Use `copilot-instructions.md` for **rules** ("always use async"). Use `AGENTS.md` for **context** ("here's our architecture and why"). Both are always loaded.
 
+> 📊 **What research says:** A recent study found that less is more with context files. Auto-generated context files (via `/init` commands) make agent performance *worse* on average — they're nearly 100% redundant with existing documentation. Hand-written files that include only non-obvious constraints (like "use `uv` not `pip`" or "never modify files in `src/gen/`") consistently outperform comprehensive ones. Every instruction you add costs 14-22% more reasoning tokens, even when irrelevant to the task. **Keep AGENTS.md short: only things the agent can't discover on its own.**
+
 ## 2.4 Final
 
 <details>
@@ -152,9 +155,12 @@ Where should I put database query logic in ContosoUniversity?
 
 **Best practices:**
 - Keep `copilot-instructions.md` focused on coding rules and conventions
-- Use `AGENTS.md` for project architecture and domain context
+- Keep `AGENTS.md` **minimal** — only include things the agent can't discover on its own
+- Don't duplicate your README or add codebase overviews — agents can navigate repos themselves
+- Never auto-generate context files; hand-written and short beats comprehensive every time
 - Create path-specific instructions for language/framework-specific rules
 - Use descriptive `applyTo` globs to target the right files
+- Every instruction has a cost — be ruthless about what you include
 
 </details>
 

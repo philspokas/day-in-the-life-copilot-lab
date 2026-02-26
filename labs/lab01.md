@@ -81,7 +81,7 @@ This repository ships with a rich set of Copilot configurations. Here's the map 
 | `.github/prompts/` | Reusable command templates (`.prompt.md`) | 21 | Lab 04 |
 | `.github/instructions/` | Path-specific rules (`.instructions.md`) | 3 | Lab 02 |
 | `.github/copilot-instructions.md` | Repository-wide rules (always loaded) | 1 | Lab 02 |
-| `AGENTS.md` | Project context (always loaded) | 1 | Lab 02 |
+| `AGENTS.md` | Non-obvious project context (always loaded) | 1 | Lab 02 |
 | `.github/hooks/` | Lifecycle guardrails (`default.json`) | 7 | Lab 06 |
 | `.copilot/mcp-config.json` | External tool integrations | 5 servers | Lab 05 |
 | `.github/workflows/*.md` | Cloud-side AI automation (gh-aw) | 2 | Labs 08-09 |
@@ -163,7 +163,7 @@ Then try:
 | **Skills** | `.github/skills/*/SKILL.md` | Auto-activating knowledge bases |
 | **Instructions** | `.github/copilot-instructions.md` | Always-on repo-wide rules |
 | **Path Instructions** | `.github/instructions/*.instructions.md` | Rules for specific file types |
-| **AGENTS.md** | `AGENTS.md` (repo root) | Project context and architecture |
+| **AGENTS.md** | `AGENTS.md` (repo root) | Non-obvious project context (keep minimal) |
 | **Prompts** | `.github/prompts/*.prompt.md` | Reusable prompt templates |
 | **Hooks** | `.github/hooks/default.json` | Lifecycle guardrails |
 | **MCP** | `.copilot/mcp-config.json` | External tool integrations |

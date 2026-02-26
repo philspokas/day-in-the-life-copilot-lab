@@ -421,7 +421,7 @@ Let's review how every piece we've learned connects in a real development workfl
 │    ripgrep + glob   → Fast pattern matching            │
 │                                                       │
 │  Configuration Ecosystem                              │
-│    AGENTS.md          → Project context for all agents │
+│    AGENTS.md          → Non-obvious context (keep minimal) │
 │    instructions/      → Rules for specific file types  │
 │    copilot-instructions → Global behavior rules        │
 │                                                       │
@@ -495,7 +495,7 @@ The workflow in practice:
 | Hooks | `.github/hooks/` | Lifecycle guardrails |
 | MCP servers | `.copilot/mcp-config.json` | External tool integrations |
 | LSP servers | `.github/lsp.json` | Language-aware code intelligence |
-| AGENTS.md | Root | Project context for all agents |
+| AGENTS.md | Root | Non-obvious project context (keep minimal) |
 | copilot-instructions.md | `.github/` | Global behavior rules |
 | gh-aw workflows | `.github/workflows/*.md` | Cloud-side AI automation |
 | Copilot Coding Agent | GitHub Settings (Copilot) | Issue → PR implementation |
