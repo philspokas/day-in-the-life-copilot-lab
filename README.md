@@ -16,10 +16,10 @@ A comprehensive, hands-on lab teaching the **full GitHub Copilot agentic develop
 | **VS Code** | Latest version with [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension |
 | **Git** | [Install](https://git-scm.com/downloads) — configured with your GitHub credentials |
 
-### Optional — Required Only for Specific Labs
+### Additional Tools by Path or Lab
 
-| When needed | Requirement |
-|-------------|------------|
+| Applies to | Requirement |
+|------------|------------|
 | All labs | **GitHub CLI** (`gh`) — [Install](https://cli.github.com/) — verify with `gh --version` |
 | All labs | **Copilot CLI** — [Install guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/install-copilot-cli): `npm install -g @github/copilot` — verify with `copilot --version` |
 | Manual Setup only | **.NET 8 SDK** — [Download](https://dotnet.microsoft.com/download/dotnet/8.0) — verify with `dotnet --version` — **devcontainer users: already included in the container** |
