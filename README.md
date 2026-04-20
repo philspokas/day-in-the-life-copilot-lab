@@ -122,7 +122,7 @@ The container includes: .NET 8 + 9 SDKs, Node.js, GitHub CLI, Copilot CLI, gh-aw
    ```
 9. ➜ **[Jump to Verify Copilot CLI](#verify-copilot-cli)**
 
-> **Podman troubleshooting:** If the container fails to start, verify the Podman socket path matches what VS Code expects. On Linux, set `"dev.containers.dockerSocketPath": "/run/user/1000/podman/podman.sock"` (adjust the UID if yours differs). On macOS/Windows, `podman machine start` handles this automatically.
+> **Podman troubleshooting:** If the container fails to start, verify the Podman socket path matches what VS Code expects. On Linux, set `"dev.containers.dockerSocketPath": "/run/user/1000/podman/podman.sock"` (adjust the UID if yours differs). On macOS/Windows, `podman machine start` handles this automatically. Your organizaiton may require you to download a CA certification into the Podman Vitual Maching, please visit: https://github.com/containers/podman/blob/main/docs/tutorials/podman-install-certificate-authority.md
 
 ---
 
