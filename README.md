@@ -114,6 +114,13 @@ The container includes: .NET 8 + 9 SDKs, Node.js, GitHub CLI, Copilot CLI, gh-aw
 4. Fork and clone this repository (see [Fork & Clone](#fork--clone) below)
 5. Open the repo folder in VS Code
 6. Run **Dev Containers: Reopen in Container** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+       <br/>   
+       If you encounter an error starting the container, you may need to configure the container for root access:
+       <br/>
+       ```
+       podman machine set --rootful
+       ```
+       <br/>
 7. Wait for the container to build (first time takes a few minutes)
 8. Once the terminal is ready, authenticate:
    ```shell
